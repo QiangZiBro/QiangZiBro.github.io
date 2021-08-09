@@ -145,6 +145,68 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
+    <link itemprop="mainEntityOfPage" href="http://qiangzibro.com/2021/08/09/test/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="QiangZiBro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="QiangZiBro的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/08/09/test/" class="post-title-link" itemprop="url">test</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-08-09 17:14:35 / Modified: 17:17:32" itemprop="dateCreated datePublished" datetime="2021-08-09T17:14:35+08:00">2021-08-09</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><span class="math display">\[\begin{equation}\label{eq1}
+e=mc^2
+\end{equation}\]</span></p>
+<p>the famous matter-energy equation <span class="math inline">\(\eqref{eq1}\)</span> proposed by Einstein ...</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
     <link itemprop="mainEntityOfPage" href="http://qiangzibro.com/2021/08/09/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E3%80%8Astacked-capsule-autoencoders%E3%80%8B-%E4%B8%8A%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -184,20 +246,29 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本次动手实现论文《<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1906.06818">stacked capsule autoencoders</a>》的pytorch版本。这篇论文的原作者开源了TensorFlow版本[1]，其细节和工程性都挺不错，是个参考的好范本（做研究建议直接参考原项目）。关于pytorch的实现，github也开源了相关例子[2,3,4]，但这些都只实现了原文第二个实验。本文是对其原文第一个实验的复现笔记，后续也计划复现第二个实验。</p>
+          <h2 id="前言">前言</h2>
+<p>本次动手实现论文《<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1906.06818">stacked capsule autoencoders</a>》的pytorch版本。这篇论文的原作者开源了TensorFlow版本[1]，其细节和工程性都挺不错，是个参考的好范本（做研究建议直接参考原项目）。关于pytorch的实现，github也开源了相关例子[2,3,4]，但这些都只实现了原文第二个实验。本文是对其原文第一个实验的复现笔记，后续也计划复现第二个实验。</p>
 <blockquote>
-<p> 全部复现代码会开源在<a target="_blank" rel="noopener" href="https://github.com/QiangZiBro/stacked_capsule_autoencoders.pytorch%EF%BC%8C%E6%AC%A2%E8%BF%8E%E6%8F%90issue%E3%80%82">https://github.com/QiangZiBro/stacked_capsule_autoencoders.pytorch，欢迎提issue。</a></p>
+<p>全部复现代码会开源在https://github.com/QiangZiBro/stacked_capsule_autoencoders.pytorch，欢迎提issue。</p>
 </blockquote>
-<h3 id="复现目标"><a href="#复现目标" class="headerlink" title="复现目标"></a>复现目标</h3><p>第一个实验</p>
-<ul>
-<li><input checked="" disabled="" type="checkbox"> Set Transformer （直接使用原论文代码）</li>
-<li><input checked="" disabled="" type="checkbox"> CCAE模型</li>
-<li><input checked="" disabled="" type="checkbox"> 高斯混合模型的编程实现</li>
-<li><input checked="" disabled="" type="checkbox"> Concellation数据集生成</li>
-<li><input checked="" disabled="" type="checkbox"> CCAE训练</li>
-<li><input checked="" disabled="" type="checkbox"> 可视化CCAE</li>
+<h3 id="复现目标">复现目标</h3>
+<p>第一个实验</p>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" checked="" />
+Set Transformer （直接使用原论文代码）</li>
+<li><input type="checkbox" disabled="" checked="" />
+CCAE模型</li>
+<li><input type="checkbox" disabled="" checked="" />
+高斯混合模型的编程实现</li>
+<li><input type="checkbox" disabled="" checked="" />
+Concellation数据集生成</li>
+<li><input type="checkbox" disabled="" checked="" />
+CCAE训练</li>
+<li><input type="checkbox" disabled="" checked="" />
+可视化CCAE</li>
 </ul>
-<h3 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h3><p>环境</p>
+<h3 id="前期准备">前期准备</h3>
+<p>环境</p>
 <ul>
 <li>系统：ubuntu 18.04.04</li>
 <li>显卡：GP100</li>
@@ -206,96 +277,133 @@
 </ul>
 <p>为了保证工程性以及少点重复工作，我们基于一个深度学习模板项目来进行本次实现。当然，为了可解释性，也会使用notebook进行相关可视化。同时会写一些必备的test case，来帮助我更加了解一些细节。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/QiangZiBro/pytorch-template</span><br><span class="line"><span class="built_in">cd</span> pytorch-template</span><br><span class="line">python new_project.py ../stacked_capsule_autoencoders.pytorch</span><br><span class="line"><span class="built_in">cd</span> ../stacked_capsule_autoencoders.pytorch</span><br><span class="line">wget https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore -O .gitignore</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="模型细节"><a href="#模型细节" class="headerlink" title="模型细节"></a>模型细节</h2><h3 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h3><p>CCAE编码器为Set Transformer，解码器为mlp的自编码器，其输入是2维平面上的点集。</p>
+<h2 id="模型细节">模型细节</h2>
+<h3 id="概览">概览</h3>
+<p>CCAE编码器为Set Transformer，解码器为mlp的自编码器，其输入是2维平面上的点集。</p>
 <p>我们接下来总结CCAE模型的细节</p>
-<h3 id="Set-Transformer"><a href="#Set-Transformer" class="headerlink" title="Set Transformer"></a>Set Transformer</h3><hr>
-<p>Set Transformer的编码器可以是连续的SAB或者连续的ISAB。使用ISAB的优点是其使用了诱导点$I \in \mathbb{R}^{m \times d}$，使得计算参数比SAB更少。<br>$$<br>Z=\operatorname{Encoder}(X)=\operatorname{SAB}(\operatorname{SAB}(X))  \in \mathbb{R}^{n \times d}<br>$$</p>
-<p>$$<br>Z=\operatorname{Encoder}(X)=\operatorname{ISAB}<em>{m}\left(\operatorname{ISAB}</em>{m}(X)\right) \in \mathbb{R}^{n \times d}<br>$$</p>
-<p>解码器<br>$$<br>O=\operatorname{Decoder}(Z ; \lambda)=\operatorname{rFF}\left(\operatorname{SAB}\left(\operatorname{PMA}_{k}(Z)\right)\right) \in \mathbb{R}^{k \times d}<br>$$</p>
-<hr>
+<h3 id="set-transformer">Set Transformer</h3>
+<hr />
+<p>Set Transformer的编码器可以是连续的SAB或者连续的ISAB。使用ISAB的优点是其使用了诱导点<span class="math inline">\(I \in \mathbb{R}^{m \times d}\)</span>，使得计算参数比SAB更少。 <span class="math display">\[
+Z=\operatorname{Encoder}(X)=\operatorname{SAB}(\operatorname{SAB}(X))  \in \mathbb{R}^{n \times d}
+\]</span></p>
+<p><span class="math display">\[
+Z=\operatorname{Encoder}(X)=\operatorname{ISAB}_{m}\left(\operatorname{ISAB}_{m}(X)\right) \in \mathbb{R}^{n \times d}
+\]</span></p>
+<p>解码器 <span class="math display">\[
+O=\operatorname{Decoder}(Z ; \lambda)=\operatorname{rFF}\left(\operatorname{SAB}\left(\operatorname{PMA}_{k}(Z)\right)\right) \in \mathbb{R}^{k \times d}
+\]</span></p>
+<hr />
 <p>细节部分</p>
 <ul>
-<li>$\operatorname{rFF}(x)$ 全连接 ，具体的讲，输入$n \times d$维，输出也是$n \times d$维。</li>
-<li>注意力机制：$\operatorname{Att}(Q, K, V ; \omega)=\omega\left(Q K^{\top}\right) V \in \mathbb{R}^{n \times d_v}$，其中，$\omega$是激活函数。</li>
+<li><span class="math inline">\(\operatorname{rFF}(x)\)</span> 全连接 ，具体的讲，输入<span class="math inline">\(n \times d\)</span>维，输出也是<span class="math inline">\(n \times d\)</span>维。</li>
+<li>注意力机制：<span class="math inline">\(\operatorname{Att}(Q, K, V ; \omega)=\omega\left(Q K^{\top}\right) V \in \mathbb{R}^{n \times d_v}\)</span>，其中，<span class="math inline">\(\omega\)</span>是激活函数。</li>
 <li>多头注意力机制</li>
 </ul>
-<p>$$<br>\operatorname{Multihead} (Q, K, V ; \lambda, \omega) = \operatorname{concat(Z_1,…,Z_h)}W^O \in \mathbb{R}^{n \times d},\ Z_{j}=\operatorname{Att}\left(Q W_{j}^{Q}, K W_{j}^{K}, V W_{j}^{V} ; \omega_{j}\right)​<br>$$</p>
+<p><span class="math display">\[
+\operatorname{Multihead} (Q, K, V ; \lambda, \omega) = \operatorname{concat(Z_1,…,Z_h)}W^O \in \mathbb{R}^{n \times d},\\ Z_{j}=\operatorname{Att}\left(Q W_{j}^{Q}, K W_{j}^{K}, V W_{j}^{V} ; \omega_{j}\right)​
+\]</span></p>
 <ul>
-<li><p>多头注意力模块（Multihead Attention Block） 输出维度和X维度相同<br>$$<br>\operatorname{MAB}(X, Y)=\operatorname{LayerNorm}(H+\operatorname{rFF}(H))<br>$$<br>其中$H=\text { LayerNorm }(X+\operatorname{Multihead}(X, Y, Y ; \omega))$</p>
-</li>
-<li><p>集合注意力模块（Set Attention Block ），计算复杂度$\mathcal{O}\left(n^{2}\right)$</p>
-</li>
+<li><p>多头注意力模块（Multihead Attention Block） 输出维度和X维度相同 <span class="math display">\[
+\operatorname{MAB}(X, Y)=\operatorname{LayerNorm}(H+\operatorname{rFF}(H))
+\]</span> 其中<span class="math inline">\(H=\text { LayerNorm }(X+\operatorname{Multihead}(X, Y, Y ; \omega))\)</span></p></li>
+<li><p>集合注意力模块（Set Attention Block ），计算复杂度<span class="math inline">\(\mathcal{O}\left(n^{2}\right)\)</span></p></li>
 </ul>
-<p>$$<br>\operatorname{SAB}(X) = \operatorname{MAB}(X,X)<br>$$</p>
+<p><span class="math display">\[
+\operatorname{SAB}(X) = \operatorname{MAB}(X,X)
+\]</span></p>
 <ul>
 <li>诱导集合注意力模块（Induced Set Attention Block ）</li>
 </ul>
-<p>$$<br>\operatorname{ISAB}_m(X)=\operatorname{MAB}(X, H) \in \mathbb{R}^{n \times d}​<br>$$</p>
-<p>​    其中$H=\operatorname{MAB}(I,X) \in \mathbb{R}^{m \times d}$，$I \in \mathbb{R}^{m \times d}$为可学习参数。</p>
+<p><span class="math display">\[
+\operatorname{ISAB}_m(X)=\operatorname{MAB}(X, H) \in \mathbb{R}^{n \times d}​
+\]</span></p>
+<p>​ 其中<span class="math inline">\(H=\operatorname{MAB}(I,X) \in \mathbb{R}^{m \times d}\)</span>，<span class="math inline">\(I \in \mathbb{R}^{m \times d}\)</span>为可学习参数。</p>
 <ul>
-<li>多头注意力机制的池化（Pooling by Multihead Attention）。池化是一种常见的聚合（aggregation）操作。上面提到，池化可以是最大或是平均。这里提出的池化是应用一个MAB在一个可学习的矩阵$S \in \mathbb{R}^{k \times d}$上。在一些聚类任务上，$k$设为我们需要的类别数。使用基于注意力的池化的直觉是，每个实例对target的重要性都不一样</li>
+<li>多头注意力机制的池化（Pooling by Multihead Attention）。池化是一种常见的聚合（aggregation）操作。上面提到，池化可以是最大或是平均。这里提出的池化是应用一个MAB在一个可学习的矩阵<span class="math inline">\(S \in \mathbb{R}^{k \times d}\)</span>上。在一些聚类任务上，<span class="math inline">\(k\)</span>设为我们需要的类别数。使用基于注意力的池化的直觉是，每个实例对target的重要性都不一样</li>
 </ul>
-<p>$$<br>\operatorname{PMA}_{k}(Z)=\operatorname{MAB}(S, \operatorname{rFF}(Z))<br>$$</p>
-<p>$$<br>H=\operatorname{SAB}\left(\operatorname{PMA}_{k}(Z)\right)<br>$$</p>
-<p>其中池化操作$\operatorname{PMA}_{k}(Z)=\operatorname{MAB}(S, \operatorname{rFF}(Z)) \in \mathbb{R}^{k \times d}$，$k$表示输出集合中实例的个数，$k &lt; n$。</p>
-<h3 id="CCAE"><a href="#CCAE" class="headerlink" title="CCAE"></a>CCAE</h3><p>对M个2维输入点组成的集合$\mathbf{x_{1:M}}$，首先使用Set Transformer将这个集合编码为$K$个$(2\times 2+n_c+1)$的object向量，这三个数分别表示OV矩阵大小、特殊向量（即特征）、存在概率。特殊向量的尺度是个超参，原文$n_c=16$。<br>$$<br>\mathrm{OV}<em>{1: K}, \mathbf{c}</em>{1: K}, a_{1: K}=\mathrm{h}^{\mathrm{caps}}\left(\mathbf{x}<em>{1: M}\right) = \operatorname{SetTransformer}\left(\mathbf{x}</em>{1: M}\right)<br>$$<br>对每个object向量，取其特殊向量，通过mlp解码出$N$个part。其中，每个part长度为$(2+1+1)$，分别为OP矩阵、存在概率、和标准差；每个object应用一个单独的mlp，mlp结构为$n_c，128,(2+1+1)\times N$。<br>$$<br>\mathrm{OP}<em>{k, 1: N}, a</em>{k, 1: N}, \lambda_{k, 1: N}=\mathrm{h}<em>{\mathrm{k}}^{\mathrm{part}}\left(\mathbf{c}</em>{k}\right) = \operatorname{mlp_k}\left(\mathbf{c}_{k}\right)<br>$$<br>在原文例子中，$M=3, N=4$。</p>
-<p>每个解码出的part都可以表示一个高斯分量。CCAE处理的数据是2维平面点，因此表示的高斯分量的均值是2维，协方差矩阵大小是$2 \times 2$的矩阵。具体的讲，由第$i$个object产生的第$j$个part表示的高斯分量均值为<br>$$<br>\mu_{k,n} = OV_k OP_{k,n}<br>$$<br>其中$OV_k$是$2 \times 2$的矩阵，$OP_{k,n}$是长度为2的向量。而part只有一个标量的标准差$\lambda_{k,n}$，即，原文将一个高斯分量假设为各向同性，通过标准差$\lambda_{k,n}$计算到高斯模型的协方差矩阵：<br>$$<br>\Sigma_{k,n} = \begin{bmatrix}<br>\frac{1}{\lambda_{k,n}} &amp; 0\<br>0 &amp; \frac{1}{\lambda_{k,n}}<br>\end{bmatrix}<br>$$<br>对于这个高斯分量的存在概率，表示为<br>$$<br>\pi_{k,n} = \frac{a_{k} a_{k, n}}{\sum_{i} a_{i} \sum_{j} a_{i, j}}<br>$$<br>因此，给定每个高斯模型的三个参数：均值，协方差，概率。可以得到给定数据分布在整个高斯混合模型上的估计为：<br>$$<br>p\left(\mathbf{x}<em>{1: M}\right)=\prod</em>{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \frac{a_{k} a_{k, n}}{\sum_{i} a_{i} \sum_{j} a_{i, j}} p\left(\mathbf{x}<em>{m} \mid k, n\right)<br>$$<br>其中，点$\mathbf{x}</em>{m}$在第$i$个object产生的第$j$个part表示的高斯计算得到的似然值为<br>$$<br>p(\mathbf{x}<em>{m}|k,n) =  p(\mathbf{x}</em>{m}|\mu_{k,n} ,\Sigma_{k,n}) = \frac{1}{(2 \pi)^{D/2} |\Sigma_{k,n}|^{1/2}}\operatorname{exp}\left(\frac{1}{2} \left(\mathbf{x}<em>{m}-\mu</em>{k,n} \right)^T \Sigma_{k,n}^{-1} \left(\mathbf{x}<em>{m}-\mu</em>{k,n} \right) \right)<br>$$<br>最大化$p\left(\mathbf{x}<em>{1: M}\right)$，求得$\mu</em>{k,n},\lambda_{k,n},\pi_{k,n}$，在理论上即可得到表示这个数据分布的模型。原文使用反向传播优化参数，目标是最大化$\operatorname{log }p\left(\mathbf{x}<em>{1: M}\right)$，等价于最小化$-\operatorname{log }p\left(\mathbf{x}</em>{1: M}\right)$。</p>
-<h4 id="数据集"><a href="#数据集" class="headerlink" title="数据集"></a>数据集</h4><p>数据（3个集群，两个正方形，一个三角形）是在线创建的，每一次创建后被随机平移、放缩、旋转到180度，最后所有点被标准化到-1到1之间。</p>
-<h4 id="决策"><a href="#决策" class="headerlink" title="决策"></a>决策</h4><p>依据object $ a_{k}$和其概率最高的part $a_{k,n}$，对每个点$x_m$，其类别决策为$k^{\star}=\arg \max <em>{k} a</em>{k} a_{k, n} p\left(\mathbf{x}_{m} \mid k, n\right)$。</p>
-<h4 id="一些实现细节"><a href="#一些实现细节" class="headerlink" title="一些实现细节"></a>一些实现细节</h4><ul>
-<li><p><strong>多维矩阵</strong> 首先要明白将所有的part、object放在一个矩阵里，每个维度的含义。笔者设定：part为<code>(B, n_objects, n_votes, (dim_input+1+1))</code>，object为<code>(B, n_objects, dim_input**2+dim_speical_features+1)</code>。搞定这些，之后可以进行矩阵拆分，对应到原论文对应的变量里。</p>
-</li>
-<li><p><strong>BatchMLP</strong> 在计算object到part的解码时用到。每个object capsule需要一个单独的MLP来解码到对应的part capsule，也就是说，输入的object维度为<code>[B, n_objects, n_special_features]</code>，被多个MLP计算得到结果应该是<code>(B, n_objects, n_votes*(dim_input+1+1))</code>。pytorch里面只有单个的MLP，我们类似原作者也实现了个BatchMLP来完成这个功能。</p>
-</li>
-<li><p><strong>对概率的处理</strong> 对预测的$a_k$和$a_{k,n}$使用softmax等函数进行处理，对预测的标准差加上一个$\epsilon=10^{-6}$防止分母为0.</p>
-</li>
+<p><span class="math display">\[
+\operatorname{PMA}_{k}(Z)=\operatorname{MAB}(S, \operatorname{rFF}(Z))
+\]</span></p>
+<p><span class="math display">\[
+H=\operatorname{SAB}\left(\operatorname{PMA}_{k}(Z)\right)
+\]</span></p>
+<p>其中池化操作<span class="math inline">\(\operatorname{PMA}_{k}(Z)=\operatorname{MAB}(S, \operatorname{rFF}(Z)) \in \mathbb{R}^{k \times d}\)</span>，<span class="math inline">\(k\)</span>表示输出集合中实例的个数，<span class="math inline">\(k &lt; n\)</span>。</p>
+<h3 id="ccae">CCAE</h3>
+<p>对M个2维输入点组成的集合<span class="math inline">\(\mathbf{x_{1:M}}\)</span>，首先使用Set Transformer将这个集合编码为<span class="math inline">\(K\)</span>个<span class="math inline">\((2\times 2+n_c+1)\)</span>的object向量，这三个数分别表示OV矩阵大小、特殊向量（即特征）、存在概率。特殊向量的尺度是个超参，原文<span class="math inline">\(n_c=16\)</span>。 <span class="math display">\[
+\mathrm{OV}_{1: K}, \mathbf{c}_{1: K}, a_{1: K}=\mathrm{h}^{\mathrm{caps}}\left(\mathbf{x}_{1: M}\right) = \operatorname{SetTransformer}\left(\mathbf{x}_{1: M}\right)
+\]</span> 对每个object向量，取其特殊向量，通过mlp解码出<span class="math inline">\(N\)</span>个part。其中，每个part长度为<span class="math inline">\((2+1+1)\)</span>，分别为OP矩阵、存在概率、和标准差；每个object应用一个单独的mlp，mlp结构为<span class="math inline">\(n_c，128,(2+1+1)\times N\)</span>。 <span class="math display">\[
+\mathrm{OP}_{k, 1: N}, a_{k, 1: N}, \lambda_{k, 1: N}=\mathrm{h}_{\mathrm{k}}^{\mathrm{part}}\left(\mathbf{c}_{k}\right) = \operatorname{mlp_k}\left(\mathbf{c}_{k}\right)
+\]</span> 在原文例子中，<span class="math inline">\(M=3, N=4\)</span>。</p>
+<p>每个解码出的part都可以表示一个高斯分量。CCAE处理的数据是2维平面点，因此表示的高斯分量的均值是2维，协方差矩阵大小是<span class="math inline">\(2 \times 2\)</span>的矩阵。具体的讲，由第<span class="math inline">\(i\)</span>个object产生的第<span class="math inline">\(j\)</span>个part表示的高斯分量均值为 <span class="math display">\[
+\mu_{k,n} = OV_k OP_{k,n}
+\]</span> 其中<span class="math inline">\(OV_k\)</span>是<span class="math inline">\(2 \times 2\)</span>的矩阵，<span class="math inline">\(OP_{k,n}\)</span>是长度为2的向量。而part只有一个标量的标准差<span class="math inline">\(\lambda_{k,n}\)</span>，即，原文将一个高斯分量假设为各向同性，通过标准差<span class="math inline">\(\lambda_{k,n}\)</span>计算到高斯模型的协方差矩阵： <span class="math display">\[
+\Sigma_{k,n} = \begin{bmatrix}
+\frac{1}{\lambda_{k,n}} &amp; 0\\
+0 &amp; \frac{1}{\lambda_{k,n}}
+\end{bmatrix}
+\]</span> 对于这个高斯分量的存在概率，表示为 <span class="math display">\[
+\pi_{k,n} = \frac{a_{k} a_{k, n}}{\sum_{i} a_{i} \sum_{j} a_{i, j}}
+\]</span> 因此，给定每个高斯模型的三个参数：均值，协方差，概率。可以得到给定数据分布在整个高斯混合模型上的估计为： <span class="math display">\[
+p\left(\mathbf{x}_{1: M}\right)=\prod_{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \frac{a_{k} a_{k, n}}{\sum_{i} a_{i} \sum_{j} a_{i, j}} p\left(\mathbf{x}_{m} \mid k, n\right)
+\]</span> 其中，点<span class="math inline">\(\mathbf{x}_{m}\)</span>在第<span class="math inline">\(i\)</span>个object产生的第<span class="math inline">\(j\)</span>个part表示的高斯计算得到的似然值为 <span class="math display">\[
+p(\mathbf{x}_{m}|k,n) =  p(\mathbf{x}_{m}|\mu_{k,n} ,\Sigma_{k,n}) = \frac{1}{(2 \pi)^{D/2} |\Sigma_{k,n}|^{1/2}}\operatorname{exp}\left(\frac{1}{2} \left(\mathbf{x}_{m}-\mu_{k,n} \right)^T \Sigma_{k,n}^{-1} \left(\mathbf{x}_{m}-\mu_{k,n} \right) \right)
+\]</span> 最大化<span class="math inline">\(p\left(\mathbf{x}_{1: M}\right)\)</span>，求得<span class="math inline">\(\mu_{k,n},\lambda_{k,n},\pi_{k,n}\)</span>，在理论上即可得到表示这个数据分布的模型。原文使用反向传播优化参数，目标是最大化<span class="math inline">\(\operatorname{log }p\left(\mathbf{x}_{1: M}\right)\)</span>，等价于最小化<span class="math inline">\(-\operatorname{log }p\left(\mathbf{x}_{1: M}\right)\)</span>。</p>
+<h4 id="数据集">数据集</h4>
+<p>数据（3个集群，两个正方形，一个三角形）是在线创建的，每一次创建后被随机平移、放缩、旋转到180度，最后所有点被标准化到-1到1之间。</p>
+<h4 id="决策">决策</h4>
+<p>依据object $ a_{k}$和其概率最高的part <span class="math inline">\(a_{k,n}\)</span>，对每个点<span class="math inline">\(x_m\)</span>，其类别决策为<span class="math inline">\(k^{\star}=\arg \max _{k} a_{k} a_{k, n} p\left(\mathbf{x}_{m} \mid k, n\right)\)</span>。</p>
+<h4 id="一些实现细节">一些实现细节</h4>
+<ul>
+<li><p><strong>多维矩阵</strong> 首先要明白将所有的part、object放在一个矩阵里，每个维度的含义。笔者设定：part为<code>(B, n_objects, n_votes, (dim_input+1+1))</code>，object为<code>(B, n_objects, dim_input**2+dim_speical_features+1)</code>。搞定这些，之后可以进行矩阵拆分，对应到原论文对应的变量里。</p></li>
+<li><p><strong>BatchMLP</strong> 在计算object到part的解码时用到。每个object capsule需要一个单独的MLP来解码到对应的part capsule，也就是说，输入的object维度为<code>[B, n_objects, n_special_features]</code>，被多个MLP计算得到结果应该是<code>(B, n_objects, n_votes*(dim_input+1+1))</code>。pytorch里面只有单个的MLP，我们类似原作者也实现了个BatchMLP来完成这个功能。</p></li>
+<li><p><strong>对概率的处理</strong> 对预测的<span class="math inline">\(a_k\)</span>和<span class="math inline">\(a_{k,n}\)</span>使用softmax等函数进行处理，对预测的标准差加上一个<span class="math inline">\(\epsilon=10^{-6}\)</span>防止分母为0.</p></li>
 </ul>
-<h2 id="代码部分"><a href="#代码部分" class="headerlink" title="代码部分"></a>代码部分</h2><h4 id="Set-Transformer-1"><a href="#Set-Transformer-1" class="headerlink" title="Set Transformer"></a>Set Transformer</h4><p>关于Set Transformer的实现如下，笔者做了相关注释，具体每个模块实现这里不贴。简而言之，这个编码器将<code>(B, N, dim_input)</code>的输入转化为<code>(B, num_outputs, dim_output)</code>的输出。</p>
+<h2 id="代码部分">代码部分</h2>
+<h4 id="set-transformer-1">Set Transformer</h4>
+<p>关于Set Transformer的实现如下，笔者做了相关注释，具体每个模块实现这里不贴。简而言之，这个编码器将<code>(B, N, dim_input)</code>的输入转化为<code>(B, num_outputs, dim_output)</code>的输出。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">from</span> base <span class="keyword">import</span> BaseModel</span><br><span class="line"><span class="keyword">from</span> model.modules.setmodules <span class="keyword">import</span> ISAB,SAB,PMA</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SetTransformer</span>(<span class="params">BaseModel</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, dim_input, num_outputs, dim_output,</span></span></span><br><span class="line"><span class="params"><span class="function">            num_inds=<span class="number">32</span>, dim_hidden=<span class="number">128</span>, num_heads=<span class="number">4</span>, ln=<span class="literal">True</span></span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;Set Transformer, An autoencoder model dealing with set data</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Input set X with N elements, each `dim_input` dimensions, output</span></span><br><span class="line"><span class="string">        `num_outputs` elements, each `dim_output` dimensions.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        In short, choose:</span></span><br><span class="line"><span class="string">        N --&gt; num_outputs</span></span><br><span class="line"><span class="string">        dim_input --&gt; dim_output</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Hyper-parameters:</span></span><br><span class="line"><span class="string">            num_inds</span></span><br><span class="line"><span class="string">            dim_hidden</span></span><br><span class="line"><span class="string">            num_heads</span></span><br><span class="line"><span class="string">            ln</span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            dim_input: Number of dimensions of one elem in input set X</span></span><br><span class="line"><span class="string">            num_outputs: Number of output elements</span></span><br><span class="line"><span class="string">            dim_output: Number of dimensions of one elem in output set</span></span><br><span class="line"><span class="string">            num_inds: inducing points number</span></span><br><span class="line"><span class="string">            dim_hidden: output dimension of one elem of middle layer</span></span><br><span class="line"><span class="string">            num_heads: heads number of multi-heads attention in MAB</span></span><br><span class="line"><span class="string">            ln: whether to use layer norm in MAB</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">super</span>(SetTransformer, self).__init__()</span><br><span class="line">        self.enc = nn.Sequential(</span><br><span class="line">                ISAB(dim_input, dim_hidden, num_heads, num_inds, ln=ln),</span><br><span class="line">                ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln))</span><br><span class="line">        self.dec = nn.Sequential(</span><br><span class="line">                PMA(dim_hidden, num_heads, num_outputs, ln=ln),</span><br><span class="line">                SAB(dim_hidden, dim_hidden, num_heads, ln=ln),</span><br><span class="line">                SAB(dim_hidden, dim_hidden, num_heads, ln=ln),</span><br><span class="line">                nn.Linear(dim_hidden, dim_output))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, X</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            X: (B, N, dim_input)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        Returns:</span></span><br><span class="line"><span class="string">            output set with shape (B, num_outputs, dim_output)</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> self.dec(self.enc(X))</span><br></pre></td></tr></table></figure>
-
-<h4 id="CCAE-1"><a href="#CCAE-1" class="headerlink" title="CCAE"></a>CCAE</h4><p>编码器核心部分如下，可以看到可以类似17版那样用矢量表示胶囊，不过这里每个胶囊用三种不同意义的变量表示，因此后续处理也不同。</p>
+<h4 id="ccae-1">CCAE</h4>
+<p>编码器核心部分如下，可以看到可以类似17版那样用矢量表示胶囊，不过这里每个胶囊用三种不同意义的变量表示，因此后续处理也不同。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">objects = self.set_transformer(x)  <span class="comment"># (B, n_objects, dim_input**2+dim_speical_features+1)</span></span><br><span class="line">splits = [self.dim_input**<span class="number">2</span>,self.dim_input**<span class="number">2</span>+self.dim_speical_features]</span><br><span class="line">ov_matrix,special_features,presence=objects[:,:,:splits[<span class="number">0</span>]],objects[:,:,splits[<span class="number">0</span>]:splits[<span class="number">1</span>]],objects[:,:,splits[<span class="number">1</span>]:]</span><br><span class="line"></span><br><span class="line">ov_matrix = ov_matrix.reshape(B, self.n_objects, self.dim_input, self.dim_input)</span><br><span class="line">presence = F.softmax(presence, dim=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-
-
-
 <p>解码器，注意到这里使用了一个BatchMLP，即使用多个MLP对每个object的<strong>特殊向量</strong>进行解码，每个object都可以解码出若干个part。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">x = self.bmlp(x) <span class="comment"># (B, n_objects, n_votes*(dim_input+1+1))</span></span><br><span class="line">x_chunk = x.chunk(self.n_votes, dim=-<span class="number">1</span>)</span><br><span class="line">x_object_part = torch.stack(x_chunk, dim=<span class="number">2</span>) <span class="comment"># (B, n_objects, n_votes, (dim_input+1+1))</span></span><br><span class="line"></span><br><span class="line">splits = [self.dim_input, self.dim_input+<span class="number">1</span>]</span><br><span class="line">op_matrix = x_object_part[:,:,:,:splits[<span class="number">0</span>]]</span><br><span class="line">standard_deviation = x_object_part[:,:,:,splits[<span class="number">0</span>]:splits[<span class="number">1</span>]]</span><br><span class="line">presence = x_object_part[:,:,:,splits[<span class="number">1</span>]:]</span><br><span class="line">presence = F.softmax(presence, dim=<span class="number">2</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
 <p>使用无监督的决策方式，参考上文原理部分</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># (B, 1, n_objects, 1)</span></span><br><span class="line">object_presence = res_dict.object_presence[:, <span class="literal">None</span>, ...]</span><br><span class="line"><span class="comment"># (B, 1, n_objects, n_votes)</span></span><br><span class="line">part_presence = res_dict.part_presence[:, <span class="literal">None</span>, ...].squeeze(-<span class="number">1</span>)</span><br><span class="line"><span class="comment"># (B, M, n_objects, n_votes)</span></span><br><span class="line">likelihood = res_dict.likelihood</span><br><span class="line">a_k_n_times_p = (part_presence * likelihood).<span class="built_in">max</span>(dim=-<span class="number">1</span>, keepdim=<span class="literal">True</span>)[<span class="number">0</span>]</span><br><span class="line">expr = object_presence * a_k_n_times_p</span><br><span class="line">winners = expr.<span class="built_in">max</span>(dim=-<span class="number">2</span>)[<span class="number">1</span>].squeeze(-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="数据集-1"><a href="#数据集-1" class="headerlink" title="数据集"></a>数据集</h4><p>这里直接复用了原本数据生成代码，搭建了一个Dataloader</p>
+<h4 id="数据集-1">数据集</h4>
+<p>这里直接复用了原本数据生成代码，搭建了一个Dataloader</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CCAE_Dataloader</span>(<span class="params">BaseDataLoader</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self,</span></span></span><br><span class="line"><span class="params"><span class="function">            <span class="comment"># for dataloader</span></span></span></span><br><span class="line"><span class="params"><span class="function">            batch_size,</span></span></span><br><span class="line"><span class="params"><span class="function">            shuffle=<span class="literal">True</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            validation_split=<span class="number">0.0</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            num_workers=<span class="number">1</span>,</span></span></span><br><span class="line"><span class="params"><span class="function"></span></span></span><br><span class="line"><span class="params"><span class="function">            <span class="comment"># for dataset</span></span></span></span><br><span class="line"><span class="params"><span class="function">            shuffle_corners=<span class="literal">True</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            gaussian_noise=<span class="number">0.</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            max_translation=<span class="number">1.</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            rotation_percent=<span class="number">0.0</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            which_patterns=<span class="string">&#x27;basic&#x27;</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            drop_prob=<span class="number">0.0</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            max_scale=<span class="number">3.</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            min_scale=<span class="number">.1</span></span></span></span><br><span class="line"><span class="params"><span class="function">        </span>):</span></span><br><span class="line">        self.dataset = CCAE_Dataset(</span><br><span class="line">            shuffle_corners,</span><br><span class="line">            gaussian_noise,</span><br><span class="line">            max_translation,</span><br><span class="line">            rotation_percent,</span><br><span class="line">            which_patterns,</span><br><span class="line">            drop_prob,</span><br><span class="line">            max_scale,</span><br><span class="line">            min_scale</span><br><span class="line">        )</span><br><span class="line">        <span class="built_in">super</span>().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)</span><br><span class="line">        </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CCAE_Dataset</span>(<span class="params">data.Dataset</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self,</span></span></span><br><span class="line"><span class="params"><span class="function">            shuffle_corners=<span class="literal">True</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            gaussian_noise=<span class="number">0.</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            max_translation=<span class="number">1.</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            rotation_percent=<span class="number">0.0</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            which_patterns=<span class="string">&#x27;basic&#x27;</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            drop_prob=<span class="number">0.0</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            max_scale=<span class="number">3.</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">            min_scale=<span class="number">.1</span></span></span></span><br><span class="line"><span class="params"><span class="function">        </span>):</span></span><br><span class="line">        self.shuffle_corners = shuffle_corners</span><br><span class="line">        self.scale = max_scale</span><br><span class="line">        self.gaussian_noise = gaussian_noise</span><br><span class="line">        self.max_translation = max_translation</span><br><span class="line">        self.rotation_percent = rotation_percent</span><br><span class="line">        self.which_patterns = which_patterns</span><br><span class="line">        self.drop_prob = drop_prob</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__len__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">10000</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getitem__</span>(<span class="params">self, item</span>):</span></span><br><span class="line">        data = create_numpy(</span><br><span class="line">            <span class="number">1</span>,</span><br><span class="line">            self.shuffle_corners,</span><br><span class="line">            self.gaussian_noise,</span><br><span class="line">            self.max_translation,</span><br><span class="line">            self.rotation_percent,</span><br><span class="line">            self.scale,</span><br><span class="line">            self.which_patterns,</span><br><span class="line">            self.drop_prob)</span><br><span class="line">        <span class="keyword">return</span> data</span><br></pre></td></tr></table></figure>
-
-<h4 id="损失"><a href="#损失" class="headerlink" title="损失"></a>损失</h4><p>损失函数的计算方式如下</p>
+<h4 id="损失">损失</h4>
+<p>损失函数的计算方式如下</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ccae_loss</span>(<span class="params">res_dict, target, epsilon = <span class="number">1e-6</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        res_dict:</span></span><br><span class="line"><span class="string">        target: input set with (B, k, dim_input)</span></span><br><span class="line"><span class="string">        epsilon: avoiding nan for reciprocal of standard deviation</span></span><br><span class="line"><span class="string">    Returns:</span></span><br><span class="line"><span class="string">        log likelihood for input dataset(here &quot;target&quot;) , (B,)</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># retrieve the variable (Sorry for possible complication)</span></span><br><span class="line">    op_matrix = res_dict.op_matrix <span class="comment"># (B, n_objects, n_votes, dim_input)</span></span><br><span class="line">    ov_matrix = res_dict.ov_matrix <span class="comment"># (B, n_objects, dim_input, dim_input)</span></span><br><span class="line">    standard_deviation = res_dict.standard_deviation <span class="comment"># (B, n_objects, n_votes, 1)</span></span><br><span class="line">    object_presence = res_dict.object_presence <span class="comment"># (B, n_objects, 1)</span></span><br><span class="line">    part_presence = res_dict.part_presence  <span class="comment"># (B, n_objects, n_votes, 1)</span></span><br><span class="line">    dim_input = res_dict.dim_input</span><br><span class="line">    B, n_objects, n_votes, _ = standard_deviation.shape</span><br><span class="line">    op_matrix = op_matrix[:,:,:,:,<span class="literal">None</span>] <span class="comment"># (B, n_objects, n_votes, dim_input,1)</span></span><br><span class="line">    ov_matrix = ov_matrix[:,:,<span class="literal">None</span>,:,:] <span class="comment"># (B, n_objects, 1, dim_input,dim_input)</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 防止分母为0</span></span><br><span class="line">    standard_deviation = epsilon + standard_deviation[<span class="literal">Ellipsis</span>, <span class="literal">None</span>]</span><br><span class="line">    <span class="comment"># 计算mu</span></span><br><span class="line">    mu = ov_matrix @ op_matrix <span class="comment"># (B, n_objects, n_votes, dim_input,1)</span></span><br><span class="line">    <span class="comment"># 计算协方差</span></span><br><span class="line">    identity = torch.eye(dim_input).repeat(B, n_objects, n_votes, <span class="number">1</span>, <span class="number">1</span>).to(standard_deviation.device)</span><br><span class="line">    sigma = identity * (<span class="number">1</span>/standard_deviation) <span class="comment"># (B, n_objects, n_votes, dim_input,dim_input)</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 计算数据集（即target）在混合模型上的似然估计</span></span><br><span class="line">    <span class="comment"># (B, k, n_objects, n_votes)</span></span><br><span class="line">    gaussian_likelihood = gmm(mu, sigma).likelihood(target, object_presence=object_presence, part_presence=part_presence)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 计算似然估计的对数，作为损失目标</span></span><br><span class="line">    log_likelihood = torch.log(gaussian_likelihood.<span class="built_in">sum</span>((<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>))).mean()</span><br><span class="line">    gaussian_likelihood = gaussian_likelihood.mean()</span><br><span class="line">    res_dict.likelihood = -gaussian_likelihood</span><br><span class="line">    res_dict.log_likelihood = -log_likelihood</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> res_dict</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
 <p>笔者又实现了一个高斯混合模型类来计算似然值，下面是计算损失的核心代码。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mu = ov_matrix @ op_matrix  <span class="comment"># (B, n_objects, n_votes, dim_input,1)</span></span><br><span class="line">identity = (</span><br><span class="line">  torch.eye(dim_input)</span><br><span class="line">  .repeat(B, n_objects, n_votes, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">  .to(standard_deviation.device)</span><br><span class="line">)</span><br><span class="line">sigma = identity * (</span><br><span class="line">  <span class="number">1</span> / standard_deviation</span><br><span class="line">)  <span class="comment"># (B, n_objects, n_votes, dim_input,dim_input)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># (B, k, n_objects, n_votes)</span></span><br><span class="line">likelihood = gmm(mu, sigma).likelihood(</span><br><span class="line">  target, object_presence=object_presence, part_presence=part_presence</span><br><span class="line">)</span><br><span class="line">log_likelihood = torch.log(likelihood.<span class="built_in">sum</span>((<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>))).mean()</span><br></pre></td></tr></table></figure>
-
 <blockquote>
 <p>后续思考，这个损失函数有点写复杂了，直接在model里算好就不需要这么多代码了。</p>
 </blockquote>
 <p>高斯混合模型的核心实现</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GuassianMixture</span>(<span class="params"><span class="built_in">object</span></span>):</span>    <span class="string">&quot;&quot;&quot;    GMM for part capsules    &quot;&quot;&quot;</span>    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, mu, sigma</span>):</span>        <span class="string">&quot;&quot;&quot;        Args:            mu: (B, n_objects, n_votes, dim_input, 1)            sigma: (B, n_objects, n_votes, dim_input, dim_input)        After initialized:            mu:   (B, 1, n_objects, n_votes, dim_input, 1)            sigma:(B, 1, n_objects, n_votes, dim_input,dim_input)            multiplier:(B, 1, n_objects, n_votes, 1, 1)        &quot;&quot;&quot;</span>        <span class="comment">#  Converse shape to        #  (Batch_size, num_of_points, num_of_objects, number_of_votes, ...)        mu = mu[:, None, ...]  # (B, 1, n_objects, n_votes, dim_input, 1)        sigma = sigma[:, None, ...]  # (B, 1, n_objects, n_votes, dim_input,dim_input)        self.sigma = sigma        self.mu = mu        self.sigma_inv = sigma.inverse()        D = self.sigma.shape[-1]        sigma_det = torch.det(sigma)  # (B, 1, n_objects, n_votes)        self.multiplier = (            1 / ((2 * math.pi) ** (D / 2) * sigma_det.sqrt())[..., None, None]        )    def likelihood(self, x, object_presence=None, part_presence=None):        diff = x - self.mu        exp_result = torch.exp(-0.5 * diff.transpose(-1, -2) @ self.sigma_inv @ diff)        denominator = object_presence.sum(dim=2, keepdim=True) * part_presence.sum(          dim=3, keepdim=True        )        exp_result = (object_presence * part_presence / denominator) * exp_result        gaussian_likelihood = self.multiplier * exp_result        return gaussian_likelihood.squeeze(-1).squeeze(-1)    def plot(self, choose):        raise NotImplemented</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="目前的效果"><a href="#目前的效果" class="headerlink" title="目前的效果"></a>目前的效果</h2><ul>
+<h2 id="目前的效果">目前的效果</h2>
+<ul>
 <li>正确分类</li>
 </ul>
 <p>原数据</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20201204231106857.png" alt="image-20201204231106857"></p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20201204231106857.png" alt="" /><figcaption>image-20201204231106857</figcaption>
+</figure>
 <p>无监督分类结果</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20201204231147582.png" alt="image-20201204231147582"></p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20201204231147582.png" alt="" /><figcaption>image-20201204231147582</figcaption>
+</figure>
 <ul>
 <li>错误分类</li>
 </ul>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20201204231236948.png" alt="image-20201204231236948"></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文使用pytorch实现了原论文第一个toy experiment，做了一个简单的展示，损失使用的是<br>$$<br>p\left(\mathbf{x}<em>{1: M}\right)=\prod</em>{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \frac{a_{k} a_{k, n}}{\sum_{i} a_{i} \sum_{j} a_{i, j}} p\left(\mathbf{x}_{m} \mid k, n\right)<br>$$<br>未使用原文提出的sparsity loss。</p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20201204231236948.png" alt="" /><figcaption>image-20201204231236948</figcaption>
+</figure>
+<h2 id="总结">总结</h2>
+<p>本文使用pytorch实现了原论文第一个toy experiment，做了一个简单的展示，损失使用的是 <span class="math display">\[
+p\left(\mathbf{x}_{1: M}\right)=\prod_{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \frac{a_{k} a_{k, n}}{\sum_{i} a_{i} \sum_{j} a_{i, j}} p\left(\mathbf{x}_{m} \mid k, n\right)
+\]</span> 未使用原文提出的sparsity loss。</p>
 <p>工程方面</p>
 <ul>
 <li>参数传递的过程中，形状为1的维度应该压缩掉</li>
@@ -307,16 +415,15 @@
 </ul>
 <p>TODO</p>
 <ul>
-<li><p>实现无监督评估方法</p>
-</li>
-<li><p>尝试用这个模型做指导性学习</p>
-</li>
+<li><p>实现无监督评估方法</p></li>
+<li><p>尝试用这个模型做指导性学习</p></li>
 </ul>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>[1] <a target="_blank" rel="noopener" href="https://github.com/google-research/google-research/tree/master/stacked_capsule_autoencoders">https://github.com/google-research/google-research/tree/master/stacked_capsule_autoencoders</a></p>
-<p>[2] <a target="_blank" rel="noopener" href="https://github.com/phanideepgampa/stacked-capsule-networks">https://github.com/phanideepgampa/stacked-capsule-networks</a></p>
-<p>[3] <a target="_blank" rel="noopener" href="https://github.com/MuhammadMomin93/Stacked-Capsule-Autoencoders-PyTorch">https://github.com/MuhammadMomin93/Stacked-Capsule-Autoencoders-PyTorch</a></p>
-<p>[4] <a target="_blank" rel="noopener" href="https://github.com/Axquaris/StackedCapsuleAutoencoders">https://github.com/Axquaris/StackedCapsuleAutoencoders</a></p>
-<p>[5] Fitting a generative model using standard divergences between measures <a target="_blank" rel="noopener" href="http://www.math.ens.fr/~feydy/Teaching/DataScience/fitting_a_generative_model.html">http://www.math.ens.fr/~feydy/Teaching/DataScience/fitting_a_generative_model.html</a></p>
+<h2 id="参考资料">参考资料</h2>
+<p>[1] https://github.com/google-research/google-research/tree/master/stacked_capsule_autoencoders</p>
+<p>[2] https://github.com/phanideepgampa/stacked-capsule-networks</p>
+<p>[3] https://github.com/MuhammadMomin93/Stacked-Capsule-Autoencoders-PyTorch</p>
+<p>[4] https://github.com/Axquaris/StackedCapsuleAutoencoders</p>
+<p>[5] Fitting a generative model using standard divergences between measures http://www.math.ens.fr/~feydy/Teaching/DataScience/fitting_a_generative_model.html</p>
 
       
     </div>
@@ -375,64 +482,61 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="零、前言"><a href="#零、前言" class="headerlink" title="零、前言"></a>零、前言</h1><blockquote>
+          <h1 id="零前言">零、前言</h1>
+<blockquote>
 <p>本文总结了在Ubuntu上的深度学习环境配置方法，大部分可类比到其他机型、系统上。尽管笔者装过不少系统，但鲜有总结方法经验。之前即没有形成一个体系成笔记记录下来，也没有形成自己的dotfiles使得能方便地移植到其他环境中。这造成的结果就是，每次换系统都要花大量时间进行折腾。为了加速上手新系统的速度而成此文，并初步构建了自己的dotfiles，目前能够在mac和linux上同步使用。谨以此文致敬在机器上折腾的青春~</p>
 </blockquote>
 <p>实验室师兄毕业，笔者接管服务器一台，开始了维护机器的脏乱累之旅。中间经历了</p>
-<p>拆<br><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69266485.jpg" alt="69266485"></p>
+<p>拆 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69266485.jpg" alt="69266485" /></p>
 <p>拆</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69305996.jpg" alt="69305996"></p>
-<p>以及出了问题蹲在一角研究到深夜的时刻…</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69425003.jpg" alt="69425003"></p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69305996.jpg" alt="" /><figcaption>69305996</figcaption>
+</figure>
+<p>以及出了问题蹲在一角研究到深夜的时刻...</p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69425003.jpg" alt="" /><figcaption>69425003</figcaption>
+</figure>
 <p>Anyway，对一个Unix爱好者来讲，这是痛并快乐着的。</p>
-<h2 id="机器型号"><a href="#机器型号" class="headerlink" title="机器型号"></a>机器型号</h2><p>笔者安装的第一台机器为戴尔Precision 7920塔式工作站，原本系统为windows，直接重装成Ubuntu18.04.04。第二台为一个组装机，两个2080Ti显卡，安装的系统和上一台一样。</p>
-<h1 id="一、必要配置"><a href="#一、必要配置" class="headerlink" title="一、必要配置"></a>一、必要配置</h1><h2 id="1-1-远程桌面安装"><a href="#1-1-远程桌面安装" class="headerlink" title="1.1 远程桌面安装"></a>1.1 远程桌面安装</h2><p>远程桌面安装其实不难，一个安装脚本就能搞定xrdp桌面的安装，笔者尝试了多种远程桌面的方式，虽然安装时挺折腾，但最后都成功了：</p>
-<ul>
-<li>XRDP( ✨✨✨推荐) 我的<a target="_blank" rel="noopener" href="https://blog.csdn.net/Qiang_brother/article/details/107497630">博客</a>  ，开源<a target="_blank" rel="noopener" href="https://c-nergy.be/blog/?p=14888">代码</a>，代码的<a target="_blank" rel="noopener" href="https://c-nergy.be/blog/?p=14888">使用方法</a><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># go to http://www.c-nergy.be/products.html</span></span><br><span class="line">wget http://c-nergy.be/downloads/xRDP/xrdp-installer-1.2.zip</span><br><span class="line">unzip xrdp-installer-1.2.zip</span><br><span class="line">bash xrdp-installer-1.2.sh</span><br></pre></td></tr></table></figure></li>
-</ul>
+<h2 id="机器型号">机器型号</h2>
+<p>笔者安装的第一台机器为戴尔Precision 7920塔式工作站，原本系统为windows，直接重装成Ubuntu18.04.04。第二台为一个组装机，两个2080Ti显卡，安装的系统和上一台一样。</p>
+<h1 id="一必要配置">一、必要配置</h1>
+<h2 id="远程桌面安装">1.1 远程桌面安装</h2>
+<p>远程桌面安装其实不难，一个安装脚本就能搞定xrdp桌面的安装，笔者尝试了多种远程桌面的方式，虽然安装时挺折腾，但最后都成功了： - XRDP( ✨✨✨推荐) 我的<a target="_blank" rel="noopener" href="https://blog.csdn.net/Qiang_brother/article/details/107497630">博客</a> ，开源<a target="_blank" rel="noopener" href="https://c-nergy.be/blog/?p=14888">代码</a>，代码的<a target="_blank" rel="noopener" href="https://c-nergy.be/blog/?p=14888">使用方法</a> <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># go to http://www.c-nergy.be/products.html</span></span><br><span class="line">wget http://c-nergy.be/downloads/xRDP/xrdp-installer-1.2.zip</span><br><span class="line">unzip xrdp-installer-1.2.zip</span><br><span class="line">bash xrdp-installer-1.2.sh</span><br></pre></td></tr></table></figure></p>
 <p>安装之后发现和原版的远程桌面一样，这是我比较喜欢的桌面，初用体验是太卡。</p>
 <ul>
-<li>No machine ( ✨✨推荐)  参考同上，这个方案还不错，但目前发现只能一个人连接（意思是需要氪金）。安装参考了<a href="%5Bhttps://blog.csdn.net/TaylorMei/article/details/107067216%5D(https://blog.csdn.net/TaylorMei/article/details/107067216)">这篇博客</a>，并且还要按<a href="%5Bhttps://www.jianshu.com/p/ba4a529c0c47%5D(https://www.jianshu.com/p/ba4a529c0c47)">这篇博客</a>来配置，方可正常使用。使用之余感慨Unix软件还是商业的做的漂亮…</li>
+<li>No machine ( ✨✨推荐) 参考同上，这个方案还不错，但目前发现只能一个人连接（意思是需要氪金）。安装参考了<a href="%5Bhttps://blog.csdn.net/TaylorMei/article/details/107067216%5D(https://blog.csdn.net/TaylorMei/article/details/107067216)">这篇博客</a>，并且还要按<a href="%5Bhttps://www.jianshu.com/p/ba4a529c0c47%5D(https://www.jianshu.com/p/ba4a529c0c47)">这篇博客</a>来配置，方可正常使用。使用之余感慨Unix软件还是商业的做的漂亮...</li>
 <li>VNC, 根据这个<a href="%5Bhttps://www.cnblogs.com/storyline/articles/11974392.html%5D(https://www.cnblogs.com/storyline/articles/11974392.html)">教程</a>装好了，个人感受使用体验一般般，遂再也没用过。</li>
-<li>续：从<a href="%5Bhttps://github.com/zakurachan/xrdp-ubuntu/blob/master/src/xrdp.sh%5D(https://github.com/zakurachan/xrdp-ubuntu/blob/master/src/xrdp.sh)">github</a> 找到的脚本，仅供参考<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;=================================&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; Installing firefox / xrdp / etc &quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;=================================&quot;</span></span><br><span class="line">sudo apt-get update -y </span><br><span class="line">sudo apt-get install -y xfce4 xfce4-goodies</span><br><span class="line">sudo apt-get install -y firefox</span><br><span class="line">sudo apt-get install -y xrdp</span><br><span class="line"><span class="built_in">echo</span> xfce4-session &gt;~/.xsession</span><br><span class="line">sudo service xrdp start</span><br></pre></td></tr></table></figure></li>
+<li>续：从<a href="%5Bhttps://github.com/zakurachan/xrdp-ubuntu/blob/master/src/xrdp.sh%5D(https://github.com/zakurachan/xrdp-ubuntu/blob/master/src/xrdp.sh)">github</a> 找到的脚本，仅供参考 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;=================================&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot; Installing firefox / xrdp / etc &quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;=================================&quot;</span></span><br><span class="line">sudo apt-get update -y </span><br><span class="line">sudo apt-get install -y xfce4 xfce4-goodies</span><br><span class="line">sudo apt-get install -y firefox</span><br><span class="line">sudo apt-get install -y xrdp</span><br><span class="line"><span class="built_in">echo</span> xfce4-session &gt;~/.xsession</span><br><span class="line">sudo service xrdp start</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="1-2-相关镜像源配置"><a href="#1-2-相关镜像源配置" class="headerlink" title="1.2 相关镜像源配置"></a>1.2 相关镜像源配置</h2><p>尽管下一条解决了这个问题，但是还是建议配好镜像源，毕竟快~<br>笔者目前经常需要<code>apt</code>, <code>conda</code>, <code>pip</code>，docker等进行联网下载，因此镜像源是必须要配置的。源头可以使用<a href="%5Bhttps://mirror.tuna.tsinghua.edu.cn/help/ubuntu/%5D(https://mirror.tuna.tsinghua.edu.cn/help/ubuntu/)">清华源</a>，建议把配置操作自动化成脚本。</p>
-<h2 id="1-3-命令行冲浪配置"><a href="#1-3-命令行冲浪配置" class="headerlink" title="1.3 命令行冲浪配置"></a>1.3 命令行冲浪配置</h2><p>有些时候必须要科学地使用命令行，比如用<code>git</code>从github上克隆项目，否则一些配置安装要等个几天几夜。笔者不喜欢点击网页的下载按钮，毕竟，命令行下载那么方便！</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 注：提前装好了miniconda 的环境</span></span><br><span class="line"><span class="comment"># 1.前期配置</span></span><br><span class="line">pip install shadowsocks</span><br><span class="line">sudo apt install privoxy</span><br><span class="line">sed -i <span class="string">&quot;s|cleanup|reset|g&quot;</span> /usr/miniconda3/lib/python3.7/site-packages/shadowsocks/crypto/openssl.py <span class="comment"># openssl bug，换一下变量名就可以了</span></span><br><span class="line"><span class="comment"># 2.接着配置privoxy 略</span></span><br><span class="line">sudo systemctl start privoxy</span><br><span class="line"><span class="comment"># 3.启动</span></span><br><span class="line">sslocal -c ss.json  <span class="comment"># 配置文件</span></span><br><span class="line"><span class="built_in">export</span> http_proxy=127.0.0.1:1087</span><br><span class="line"><span class="built_in">export</span> https_proxy=127.0.0.1:1087</span><br><span class="line"><span class="comment"># done</span></span><br></pre></td></tr></table></figure>
-
-
-<h2 id="1-4-网络配置"><a href="#1-4-网络配置" class="headerlink" title="1.4 网络配置"></a>1.4 网络配置</h2><p>笔者最开始ip相关配置是直接在图形界面设置好的，因此没有使用命令行。图形界面配置一般不会有问题。中间笔者配第二台机器的时候，把子网掩码写错了，外界网站一直连不上，为此又折腾命令行的相关网络配置。查找资料的时候发现ubuntu管理网络的命令比较繁杂，ubuntu18.04.04使用的是<code>netplan</code>。<br>网络的配置写在<code>/etc/netplan/01-network-manager-all.yaml</code>这个文件。如果你想通过配置文件和命令行的方式来配置的话，可以编辑这个文件，初始内容如下</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/68060119.png" alt="68060119.png"></p>
+<h2 id="相关镜像源配置">1.2 相关镜像源配置</h2>
+<p>尽管下一条解决了这个问题，但是还是建议配好镜像源，毕竟快~ 笔者目前经常需要<code>apt</code>, <code>conda</code>, <code>pip</code>，docker等进行联网下载，因此镜像源是必须要配置的。源头可以使用<a href="%5Bhttps://mirror.tuna.tsinghua.edu.cn/help/ubuntu/%5D(https://mirror.tuna.tsinghua.edu.cn/help/ubuntu/)">清华源</a>，建议把配置操作自动化成脚本。</p>
+<h2 id="命令行冲浪配置">1.3 命令行冲浪配置</h2>
+<p>有些时候必须要科学地使用命令行，比如用<code>git</code>从github上克隆项目，否则一些配置安装要等个几天几夜。笔者不喜欢点击网页的下载按钮，毕竟，命令行下载那么方便！ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 注：提前装好了miniconda 的环境</span></span><br><span class="line"><span class="comment"># 1.前期配置</span></span><br><span class="line">pip install shadowsocks</span><br><span class="line">sudo apt install privoxy</span><br><span class="line">sed -i <span class="string">&quot;s|cleanup|reset|g&quot;</span> /usr/miniconda3/lib/python3.7/site-packages/shadowsocks/crypto/openssl.py <span class="comment"># openssl bug，换一下变量名就可以了</span></span><br><span class="line"><span class="comment"># 2.接着配置privoxy 略</span></span><br><span class="line">sudo systemctl start privoxy</span><br><span class="line"><span class="comment"># 3.启动</span></span><br><span class="line">sslocal -c ss.json  <span class="comment"># 配置文件</span></span><br><span class="line"><span class="built_in">export</span> http_proxy=127.0.0.1:1087</span><br><span class="line"><span class="built_in">export</span> https_proxy=127.0.0.1:1087</span><br><span class="line"><span class="comment"># done</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="网络配置">1.4 网络配置</h2>
+<p>笔者最开始ip相关配置是直接在图形界面设置好的，因此没有使用命令行。图形界面配置一般不会有问题。中间笔者配第二台机器的时候，把子网掩码写错了，外界网站一直连不上，为此又折腾命令行的相关网络配置。查找资料的时候发现ubuntu管理网络的命令比较繁杂，ubuntu18.04.04使用的是<code>netplan</code>。 网络的配置写在<code>/etc/netplan/01-network-manager-all.yaml</code>这个文件。如果你想通过配置文件和命令行的方式来配置的话，可以编辑这个文件，初始内容如下</p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/68060119.png" alt="" /><figcaption>68060119.png</figcaption>
+</figure>
 <p>renderer这一行表示你想通过图形界面配置网络，如果是的那么后面就不用写了。通过文件来管理网络，笔者从网上找到的一个例子如下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Let NetworkManager manage all devices on this system</span></span><br><span class="line">network:</span><br><span class="line">  version: 2</span><br><span class="line">  <span class="comment"># renderer: NetworkManager</span></span><br><span class="line">  ethernets:</span><br><span class="line">          ens33:</span><br><span class="line">                  addresses: [192.168.0.111/24]</span><br><span class="line">                  gateway4: 192.168.0.1</span><br><span class="line">                  nameservers:</span><br><span class="line">                        addresses: [192.168.0.1]</span><br></pre></td></tr></table></figure>
-<p>要注意yaml文件的同级缩进一致，以及和自己的网络各种配置保持一致。填错一个配置，可能会坑你一些时间！</p>
-<h2 id="1-5-ssh安装"><a href="#1-5-ssh安装" class="headerlink" title="1.5 ssh安装"></a>1.5 ssh安装</h2><p>我装的ubuntu18.04没有ssh服务端，还需要安装，才能从外界ssh连入。运行下面两行，ssh可以直接用啦。<a target="_blank" rel="noopener" href="https://www.cnblogs.com/linuxAndMcu/p/10766589.html">参考</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y openssh-client openssh-server</span><br><span class="line">sudo service ssh start</span><br></pre></td></tr></table></figure>
-<h2 id="1-6-创建用户和组"><a href="#1-6-创建用户和组" class="headerlink" title="1.6 创建用户和组"></a>1.6 创建用户和组</h2><p>管理用户和组是系统管理员最基本的要求</p>
+<p>要注意yaml文件的同级缩进一致，以及和自己的网络各种配置保持一致。填错一个配置，可能会坑你一些时间！ ## 1.5 ssh安装 我装的ubuntu18.04没有ssh服务端，还需要安装，才能从外界ssh连入。运行下面两行，ssh可以直接用啦。<a target="_blank" rel="noopener" href="https://www.cnblogs.com/linuxAndMcu/p/10766589.html">参考</a> <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y openssh-client openssh-server</span><br><span class="line">sudo service ssh start</span><br></pre></td></tr></table></figure> ## 1.6 创建用户和组</p>
+<p>管理用户和组是系统管理员最基本的要求</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">groupadd 组名 <span class="comment"># 新增组，只能是一个组，建多个用循环</span></span><br><span class="line">adduser 成员名 <span class="comment"># 新增成员</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 把成员加到组里去</span></span><br><span class="line">adduser 成员名 组名 <span class="comment"># 这个操作更简单</span></span><br><span class="line">usermod -a -G 组名 成员名 <span class="comment"># 等价</span></span><br><span class="line"><span class="comment"># 改变login shell为zsh</span></span><br><span class="line">chsh --shell /usr/bin/zsh qiangzibro</span><br><span class="line"></span><br><span class="line"><span class="comment"># 当然还可以在建用户时就把上两条做好</span></span><br><span class="line"><span class="comment"># 例：建用户名为小刚的用户，并把他加到专业团队和篮球队这两个队，-s指定shell为zsh，-m指定创建家目录</span></span><br><span class="line">useradd  -G 专业团队，篮球队 -m -s /bin/zsh 小刚</span><br></pre></td></tr></table></figure>
-
 <ul>
-<li>将所有用户添加到<code>deepones</code>组下<br>参考了一篇国外<a href="%5Bhttps://mike632t.wordpress.com/2013/10/13/adding-all-users-to-a-group/%5D(https://mike632t.wordpress.com/2013/10/13/adding-all-users-to-a-group/)">博客</a></li>
+<li>将所有用户添加到<code>deepones</code>组下 参考了一篇国外<a href="%5Bhttps://mike632t.wordpress.com/2013/10/13/adding-all-users-to-a-group/%5D(https://mike632t.wordpress.com/2013/10/13/adding-all-users-to-a-group/)">博客</a></li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> ID <span class="keyword">in</span> $(cat /etc/passwd | grep /home | cut -d <span class="string">&#x27;:&#x27;</span> -f1)</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    (sudo adduser <span class="variable">$ID</span> deepones);</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
 <p>直接用下面这种方式也很简单</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> ID <span class="keyword">in</span>  `ls /home`; \</span><br><span class="line"><span class="keyword">do</span> (sudo adduser <span class="variable">$ID</span> deepones);<span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-
-
 <p>最后，笔者写了一个用来建用户和组的小<a target="_blank" rel="noopener" href="https://github.com/QiangZiBro/Qdotfiles/blob/master/scripts/setup_users.sh">脚本</a>，只需要输入相关用户名、组名，就可以创建之并相关联。目前的情况是，实验室的成员放到一个组里，我给取的名字叫做deepones。为了使用docker，还需要将所有人放在docker组里，这样做解决了docker要用sudo的问题，也就是说，你不用sudo也能用docker命令了。当然，为了有管理员权限，还需要将所有人放在sudo组里。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="function"><span class="title">setup_groups</span></span>()&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;🌝 Create user groups...&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> GROUPNAME <span class="keyword">in</span> docker deepones</span><br><span class="line"></span><br><span class="line">    <span class="keyword">do</span></span><br><span class="line">        getent group <span class="variable">$GROUPNAME</span> 2&gt;&amp;1 &gt;/dev/null &amp;&amp; <span class="built_in">echo</span> <span class="string">&quot;INFO: <span class="variable">$GROUPNAME</span> already exists&quot;</span>|| groupadd <span class="variable">$GROUPNAME</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="title">create_user</span></span>()&#123;</span><br><span class="line">    <span class="comment">#----------------------------------------------------------------------------------</span></span><br><span class="line">    <span class="comment"># 创建一个用户，并进行组设置、shell设置</span></span><br><span class="line">    <span class="comment">#----------------------------------------------------------------------------------</span></span><br><span class="line">    [ -z <span class="variable">$1</span> ] &amp;&amp; <span class="built_in">echo</span> <span class="string">&quot;No user name input and abort!&quot;</span> &amp;&amp; <span class="built_in">exit</span> 0</span><br><span class="line">    USERNAME=<span class="variable">$1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> [ -d <span class="string">&quot;/home/<span class="variable">$USERNAME</span>&quot;</span> ]</span><br><span class="line">    <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">printf</span> <span class="string">&quot;INFO: User \&quot;<span class="variable">$USERNAME</span>\&quot; already exists\n&quot;</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment"># -G 该用户的其他组还应该属于的组，可以有多个</span></span><br><span class="line">        <span class="comment"># -m 创建用户的家目录</span></span><br><span class="line">        <span class="comment"># -s 该用户的登录shell</span></span><br><span class="line">        <span class="comment"># -p 该用户的密码</span></span><br><span class="line">        useradd  -G docker,deepones,sudo -m -s /bin/zsh <span class="variable">$USERNAME</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$USERNAME</span>:<span class="variable">$USERNAME</span>&quot;</span> | chpasswd</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">create_users</span></span>() &#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;🌝 Creating users...&quot;</span></span><br><span class="line">    <span class="keyword">for</span> user <span class="keyword">in</span> qiangzibro daxiongpro haochen</span><br><span class="line">    <span class="keyword">do</span></span><br><span class="line">        create_user <span class="variable">$user</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">&#125;</span><br><span class="line">setup_groups</span><br><span class="line">create_users</span><br></pre></td></tr></table></figure>
-
-
-
 <blockquote>
-<h3 id="Ubuntu显式地创建成员-useradd"><a href="#Ubuntu显式地创建成员-useradd" class="headerlink" title="Ubuntu显式地创建成员 useradd"></a>Ubuntu显式地创建成员 useradd</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1001 ubuntu</span><br></pre></td></tr></table></figure>
-
+<h3 id="ubuntu显式地创建成员-useradd">Ubuntu显式地创建成员 useradd</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;useradd -rm -d /home/ubuntu -s /bin/bash -g root -G sudo -u 1001 ubuntu</span><br></pre></td></tr></table></figure>
 <p><code>useradd</code> options (see: <code>man useradd</code>):</p>
 <ul>
 <li><code>-r</code>, <code>--system</code> Create a system account. see: <a target="_blank" rel="noopener" href="https://unix.stackexchange.com/q/213101/21471">Implications creating <em>system accounts</em></a></li>
-<li><code>-m</code>, <code>--create-home</code> Create the user’s home directory.</li>
+<li><code>-m</code>, <code>--create-home</code> Create the user's home directory.</li>
 <li><code>-d</code>, <code>--home-dir HOME_DIR</code> Home directory of the new account.</li>
 <li><code>-s</code>, <code>--shell SHELL</code> Login shell of the new account.</li>
 <li><code>-g</code>, <code>--gid GROUP</code> Name or ID of the primary group.</li>
@@ -440,207 +544,172 @@
 <li><code>-u</code>, <code>--uid UID</code> Specify user ID. see: <a target="_blank" rel="noopener" href="https://medium.com/@mccode/understanding-how-uid-and-gid-work-in-docker-containers-c37a01d01cf">Understanding how uid and gid work in Docker containers</a></li>
 </ul>
 </blockquote>
-<h2 id="1-7-硬盘自动加载"><a href="#1-7-硬盘自动加载" class="headerlink" title="1.7 硬盘自动加载"></a>1.7 硬盘自动加载</h2><h4 id="新硬盘分区"><a href="#新硬盘分区" class="headerlink" title="新硬盘分区"></a>新硬盘分区</h4><p>实验室新买了两块2TB硬盘，放进机器后进行了分区、创建文件系统、开机自启设置操作，才能够进行使用。ubuntu的<a target="_blank" rel="noopener" href="https://help.ubuntu.com/community/InstallingANewHardDrive">官方文档</a>是个不错的参考。 </p>
+<h2 id="硬盘自动加载">1.7 硬盘自动加载</h2>
+<h4 id="新硬盘分区">新硬盘分区</h4>
+<p>实验室新买了两块2TB硬盘，放进机器后进行了分区、创建文件系统、开机自启设置操作，才能够进行使用。ubuntu的<a target="_blank" rel="noopener" href="https://help.ubuntu.com/community/InstallingANewHardDrive">官方文档</a>是个不错的参考。</p>
 <p>首先使用下面命令查看硬盘以及分区</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fdisk -l</span><br><span class="line">lsblk <span class="comment"># 也可</span></span><br></pre></td></tr></table></figure>
-
 <p>比如我们找到了这个硬盘叫<code>/dev/sdc</code>，那么首先对其分区</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fdisk /dev/sdc <span class="comment"># 对2TB硬盘进行分区，sd后面具体实际根据fdisk -l来看</span></span><br></pre></td></tr></table></figure>
-
 <p>再进行格式化</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mkfs.ext4 /dev/sdc</span><br><span class="line"><span class="comment"># 格式化时可以指定磁盘的block size和Inode size</span></span><br><span class="line">mkfs.ext4 -b 4096 -I 256</span><br><span class="line"></span><br><span class="line"><span class="comment"># 【存疑】不使用这个会报错</span></span><br><span class="line">partprobe /dev/sdc </span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="手动挂载硬盘"><a href="#手动挂载硬盘" class="headerlink" title="手动挂载硬盘"></a>手动挂载硬盘</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /mnt/2TB <span class="comment"># 创建挂载点</span></span><br><span class="line">mount /dev/sdb /mnt/2TB <span class="comment"># 挂载</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="开机时自动挂载硬盘"><a href="#开机时自动挂载硬盘" class="headerlink" title="开机时自动挂载硬盘"></a>开机时自动挂载硬盘</h4><p>打开<code>/etc/fstab</code>，对要开机自动加载的硬盘设置如下的格式</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70558222.png" alt="70558222.png"></p>
-<h4 id="做软链接（可选）"><a href="#做软链接（可选）" class="headerlink" title="做软链接（可选）"></a>做软链接（可选）</h4><p>我希望在每个硬盘下都建立了以用户为名字的文件，并建立了软链接到所有用户家目录。这样每个用户的家目录下面都可以看到对应硬盘的文件夹，同时又不会公用一个文件夹。像这样：</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/54072768.png" alt="54072768.png"></p>
+<h4 id="手动挂载硬盘">手动挂载硬盘</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /mnt/2TB <span class="comment"># 创建挂载点</span></span><br><span class="line">mount /dev/sdb /mnt/2TB <span class="comment"># 挂载</span></span><br></pre></td></tr></table></figure>
+<h4 id="开机时自动挂载硬盘">开机时自动挂载硬盘</h4>
+<p>打开<code>/etc/fstab</code>，对要开机自动加载的硬盘设置如下的格式</p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70558222.png" alt="" /><figcaption>70558222.png</figcaption>
+</figure>
+<h4 id="做软链接可选">做软链接（可选）</h4>
+<p>我希望在每个硬盘下都建立了以用户为名字的文件，并建立了软链接到所有用户家目录。这样每个用户的家目录下面都可以看到对应硬盘的文件夹，同时又不会公用一个文件夹。像这样：</p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/54072768.png" alt="" /><figcaption>54072768.png</figcaption>
+</figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> hardware <span class="keyword">in</span> `realpath *TB*`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">        hardware_name=`basename <span class="variable">$hardware</span>`</span><br><span class="line">        <span class="keyword">for</span> user <span class="keyword">in</span> `ls /home`</span><br><span class="line">        <span class="keyword">do</span></span><br><span class="line">                dir=<span class="string">&quot;<span class="variable">$hardware</span>&quot;</span>/<span class="string">&quot;<span class="variable">$user</span>&quot;</span></span><br><span class="line">                linkdir=/home/<span class="string">&quot;<span class="variable">$user</span>&quot;</span>/<span class="string">&quot;<span class="variable">$hardware_name</span>&quot;</span></span><br><span class="line"></span><br><span class="line">                <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$dir</span> --&gt; <span class="variable">$linkdir</span>&quot;</span></span><br><span class="line">                mkdir -p <span class="variable">$dir</span></span><br><span class="line">                ln -s <span class="variable">$dir</span> <span class="variable">$linkdir</span></span><br><span class="line">                </span><br><span class="line">                chown -R <span class="string">&quot;<span class="variable">$user</span>&quot;</span>:deepones   <span class="variable">$dir</span></span><br><span class="line">                chown -R <span class="string">&quot;<span class="variable">$user</span>&quot;</span>:deepones -h <span class="variable">$linkdir</span></span><br><span class="line">        <span class="keyword">done</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h4><p>发现2TB的硬盘<code>/dev/sda1</code>被挂载了<code>/boot/efi</code>上，导致的情况就是这个硬盘暂时不能被格式化，也不能被直接挂载和使用了。</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200925105809886.png" alt="image-20200925105809886"></p>
+<h4 id="遇到的问题">遇到的问题</h4>
+<p>发现2TB的硬盘<code>/dev/sda1</code>被挂载了<code>/boot/efi</code>上，导致的情况就是这个硬盘暂时不能被格式化，也不能被直接挂载和使用了。</p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200925105809886.png" alt="" /><figcaption>image-20200925105809886</figcaption>
+</figure>
 <p>而我之前装的系统，根目录和efi都是挂载在固态硬盘里的，这里面<code>/dev/sda</code>是固态硬盘</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200925105928294.png" alt="image-20200925105928294"></p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200925105928294.png" alt="" /><figcaption>image-20200925105928294</figcaption>
+</figure>
 <p>【怎么解决？】要想使用这个硬盘，必须要解除掉<code>/boot/efi</code>的占用，把它挂载到另外一个地方</p>
-<h1 id="二、软件安装"><a href="#二、软件安装" class="headerlink" title="二、软件安装"></a>二、软件安装</h1><h2 id="2-0-dotfiles的哲学"><a href="#2-0-dotfiles的哲学" class="headerlink" title="2.0 dotfiles的哲学"></a>2.0 dotfiles的哲学</h2><p>一台空机器往往需要一些必备的工具，干活起来才会更“<strong>舒服</strong>”。不同人喜欢不同的软件，不同的配置。笔者也有自己的一套习惯，比如命令行终端的ohmyzsh，编辑文件使用neovim再加上自己的vimrc等等。而在新机器手动安装不同的软件、配置往往会花掉我们很多功夫。想要加速这个过程，可以编写自己的安装脚本，又或者使用容器技术，使得在任何环境下都有同样的配置。在知乎大神<a href="%5Bhttps://www.zhihu.com/people/skywind3000%5D(https://www.zhihu.com/people/skywind3000/columns)">韦易笑</a>的文章下，我建立自己的<a href="%5Bhttps://github.com/QiangZiBro/Qdotfiles%5D(https://github.com/QiangZiBro/Qdotfiles)">Qdotfiles</a>，并自动化了配置和安装的过程，只需下面一个命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.githubusercontent.com/QiangZiBro/Qdotfiles/master/scripts/bootstrap.sh)</span>&quot;</span></span><br></pre></td></tr></table></figure>
-<p>并写了一个Dockerfile，让我的配置在容器里也能测试成功，这个过程中联系了一波docker的使用。要注意的是，Qdotfiles还处于个人维护阶段，直接拿到自己的系统使用也许仍然会有一些问题，但是可以使用容器，进行一些小的尝试。<br>下面常见的安装，都会总结到<a href="%5Bhttps://github.com/QiangZiBro/Qdotfiles%5D(https://github.com/QiangZiBro/Qdotfiles)">Qdotfile</a>项目里。</p>
-<h2 id="2-1-zsh"><a href="#2-1-zsh" class="headerlink" title="2.1 zsh"></a>2.1 zsh</h2><h3 id="oh-my-zsh"><a href="#oh-my-zsh" class="headerlink" title="oh my zsh"></a>oh my zsh</h3><p>以前一直想装一次ohmyzsh，所有用户使用，后来读了<a href="%5Bhttps://stackoverflow.com/questions/43026839/how-do-i-set-the-default-zshrc-oh-my-zsh-for-users%5D(https://stackoverflow.com/questions/43026839/how-do-i-set-the-default-zshrc-oh-my-zsh-for-users)">这条</a>建议后，发现没有必要。ohmyzsh是一套配置，它的核心还是zsh，每个用户各安装各自的配置即可。安装方式：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
+<h1 id="二软件安装">二、软件安装</h1>
+<h2 id="dotfiles的哲学">2.0 dotfiles的哲学</h2>
+<p>一台空机器往往需要一些必备的工具，干活起来才会更“<strong>舒服</strong>”。不同人喜欢不同的软件，不同的配置。笔者也有自己的一套习惯，比如命令行终端的ohmyzsh，编辑文件使用neovim再加上自己的vimrc等等。而在新机器手动安装不同的软件、配置往往会花掉我们很多功夫。想要加速这个过程，可以编写自己的安装脚本，又或者使用容器技术，使得在任何环境下都有同样的配置。在知乎大神<a href="%5Bhttps://www.zhihu.com/people/skywind3000%5D(https://www.zhihu.com/people/skywind3000/columns)">韦易笑</a>的文章下，我建立自己的<a href="%5Bhttps://github.com/QiangZiBro/Qdotfiles%5D(https://github.com/QiangZiBro/Qdotfiles)">Qdotfiles</a>，并自动化了配置和安装的过程，只需下面一个命令： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.githubusercontent.com/QiangZiBro/Qdotfiles/master/scripts/bootstrap.sh)</span>&quot;</span></span><br></pre></td></tr></table></figure> 并写了一个Dockerfile，让我的配置在容器里也能测试成功，这个过程中联系了一波docker的使用。要注意的是，Qdotfiles还处于个人维护阶段，直接拿到自己的系统使用也许仍然会有一些问题，但是可以使用容器，进行一些小的尝试。 下面常见的安装，都会总结到<a href="%5Bhttps://github.com/QiangZiBro/Qdotfiles%5D(https://github.com/QiangZiBro/Qdotfiles)">Qdotfile</a>项目里。</p>
+<h2 id="zsh">2.1 zsh</h2>
+<h3 id="oh-my-zsh">oh my zsh</h3>
+<p>以前一直想装一次ohmyzsh，所有用户使用，后来读了<a href="%5Bhttps://stackoverflow.com/questions/43026839/how-do-i-set-the-default-zshrc-oh-my-zsh-for-users%5D(https://stackoverflow.com/questions/43026839/how-do-i-set-the-default-zshrc-oh-my-zsh-for-users)">这条</a>建议后，发现没有必要。ohmyzsh是一套配置，它的核心还是zsh，每个用户各安装各自的配置即可。安装方式： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)</span>&quot;</span></span><br></pre></td></tr></table></figure></p>
 <p>上面一条安装完了，想改变用户的登录shell为zsh，使用</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo  chsh <span class="variable">$USER</span> -s $(<span class="built_in">which</span> zsh)</span><br></pre></td></tr></table></figure>
-
-<h3 id="插件管理"><a href="#插件管理" class="headerlink" title="插件管理"></a>插件管理</h3><p>使用zplug，官方给的安装命令：</p>
+<h3 id="插件管理">插件管理</h3>
+<p>使用zplug，官方给的安装命令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh</span><br></pre></td></tr></table></figure>
-
 <p>将类似于下面的语句放在<code>~/.zshrc</code>里面，我用的插件有</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">zplug <span class="string">&#x27;plugins/git&#x27;</span>, from:oh-my-zsh, <span class="keyword">if</span>:<span class="string">&#x27;which git&#x27;</span></span><br><span class="line">zplug romkatv/powerlevel10k, as:theme, depth:1</span><br><span class="line"><span class="comment"># zplug &quot;plugins/vi-mode&quot;, from:oh-my-zsh</span></span><br><span class="line">zplug <span class="string">&#x27;zsh-users/zsh-autosuggestions&#x27;</span></span><br><span class="line">zplug <span class="string">&#x27;zsh-users/zsh-completions&#x27;</span>, defer:2</span><br><span class="line">zplug <span class="string">&#x27;zsh-users/zsh-history-substring-search&#x27;</span></span><br><span class="line">zplug <span class="string">&#x27;zsh-users/zsh-syntax-highlighting&#x27;</span>, defer:2</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="2-2-替换你的cd命令-z-lua"><a href="#2-2-替换你的cd命令-z-lua" class="headerlink" title="2.2 替换你的cd命令 z.lua"></a>2.2 替换你的cd命令 z.lua</h2><p>从skywind3000大佬那里安利的工具</p>
+<h2 id="替换你的cd命令-z.lua">2.2 替换你的cd命令 z.lua</h2>
+<p>从skywind3000大佬那里安利的工具</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/skywind3000/z.lua /usr/softwares/z.lua</span><br><span class="line">sudo apt install -y lua5.3</span><br><span class="line">sudo ln -s /usr/bin/lua5.3 /usr/bin/lua</span><br><span class="line"><span class="comment">#接着在.zshrc添加</span></span><br><span class="line"><span class="built_in">eval</span> <span class="string">&quot;<span class="subst">$(lua5.3 /usr/softwares/z.lua/z.lua --init zsh)</span>&quot;</span></span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>Note：笔者后来用了zsh-autosuggestions插件后，发现用z的机会也少了。不过各有千秋，目录跳转比刀耕火种的cd好多了，哈哈！</p>
 </blockquote>
-<h2 id="2-3-miniconda"><a href="#2-3-miniconda" class="headerlink" title="2.3 miniconda"></a>2.3 miniconda</h2><p>安装脚本来自<a target="_blank" rel="noopener" href="https://github.com/QiangZiBro/Qdotfiles/blob/b98304139a4e26cf8276ce3d60dc7fb138f08bcb/conda/install.sh#L23-L33">我的dotfiles</a>，我将miniconda直接安装在了<code>/usr</code>文件夹，其实安装在<code>/usr/softwares</code>下更好，不过无伤大雅</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">conda_linux=~/.Qdotfiles/downloads/miniconda3_linux.sh</span><br><span class="line">wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O <span class="variable">$conda_linux</span></span><br><span class="line">sudo bash <span class="variable">$conda_linux</span> -p /usr/miniconda3 -b -u</span><br></pre></td></tr></table></figure>
-<ul>
-<li>conda安装后，将各个常见的pytorch版本创建了一遍<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;12..17&#125;</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    conda create -n torch<span class="variable">$i</span> python=3.7 -y</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-再从<a href="%5Bhttps://pytorch.org/get-started/locally/%5D(https://pytorch.org/get-started/locally/)">官网</a>下载对应的包。</li>
-<li>使用Tips<br>为每一个项目单独创一个环境，不同环境不要混用。比如自己项目需要torch12版本，以及其他依赖包，可以首先克隆torch12这个环境：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -n 项目名称 --<span class="built_in">clone</span> torch12</span><br></pre></td></tr></table></figure>
-激活环境并在这个环境下进行构建：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">conda activate  项目名称</span><br><span class="line">conda install ...</span><br><span class="line">pip install ...</span><br></pre></td></tr></table></figure>
-<h2 id="2-4-nvim"><a href="#2-4-nvim" class="headerlink" title="2.4 nvim"></a>2.4 nvim</h2>我写的安装<a target="_blank" rel="noopener" href="https://github.com/QiangZiBro/Qdotfiles/blob/b98304139a4e26cf8276ce3d60dc7fb138f08bcb/neovim/install.sh#L3-L22">脚本</a>，包括了</li>
-<li>下载</li>
-<li>安装</li>
-<li>插件配置   </li>
-</ul>
+<h2 id="miniconda">2.3 miniconda</h2>
+<p>安装脚本来自<a target="_blank" rel="noopener" href="https://github.com/QiangZiBro/Qdotfiles/blob/b98304139a4e26cf8276ce3d60dc7fb138f08bcb/conda/install.sh#L23-L33">我的dotfiles</a>，我将miniconda直接安装在了<code>/usr</code>文件夹，其实安装在<code>/usr/softwares</code>下更好，不过无伤大雅 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">conda_linux=~/.Qdotfiles/downloads/miniconda3_linux.sh</span><br><span class="line">wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O <span class="variable">$conda_linux</span></span><br><span class="line">sudo bash <span class="variable">$conda_linux</span> -p /usr/miniconda3 -b -u</span><br></pre></td></tr></table></figure> - conda安装后，将各个常见的pytorch版本创建了一遍 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;12..17&#125;</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    conda create -n torch<span class="variable">$i</span> python=3.7 -y</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure> 再从<a href="%5Bhttps://pytorch.org/get-started/locally/%5D(https://pytorch.org/get-started/locally/)">官网</a>下载对应的包。 - 使用Tips 为每一个项目单独创一个环境，不同环境不要混用。比如自己项目需要torch12版本，以及其他依赖包，可以首先克隆torch12这个环境： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -n 项目名称 --<span class="built_in">clone</span> torch12</span><br></pre></td></tr></table></figure> 激活环境并在这个环境下进行构建： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">conda activate  项目名称</span><br><span class="line">conda install ...</span><br><span class="line">pip install ...</span><br></pre></td></tr></table></figure> ## 2.4 nvim 我写的安装<a target="_blank" rel="noopener" href="https://github.com/QiangZiBro/Qdotfiles/blob/b98304139a4e26cf8276ce3d60dc7fb138f08bcb/neovim/install.sh#L3-L22">脚本</a>，包括了 - 下载 - 安装 - 插件配置</p>
 <p>等操作。更多常用软件安装，会总结在自己的dotfiles里。</p>
-<h2 id="2-5-CUDA驱动安装"><a href="#2-5-CUDA驱动安装" class="headerlink" title="2.5 CUDA驱动安装"></a>2.5 CUDA驱动安装</h2><p>查看GPU版本</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ lspci | grep -i nvidia</span><br><span class="line">3b:00.0 VGA compatible controller: NVIDIA Corporation GP100GL [Quadro GP100] (rev a1)</span><br><span class="line">3b:00.1 Audio device: NVIDIA Corporation Device 0fb1 (rev a1)</span><br></pre></td></tr></table></figure>
-<h3 id="2-5-1-成功安装方式"><a href="#2-5-1-成功安装方式" class="headerlink" title="2.5.1 成功安装方式"></a>2.5.1 成功安装方式</h3><ul>
-<li><p>第一步：安装必备软件，官方推荐的库</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install -y g++ freeglut3-dev build-essential libx11-dev libxmu-dev libxi-dev libglu1-mesa libglu1-mesa-dev</span><br></pre></td></tr></table></figure></li>
-<li><p>第二步：<a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-nouveau">禁用nouveau</a>，这是官方文档的步骤，并且还要重启。连在一起我写了如下脚本，可以直接运行</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1</span></span><br><span class="line">cat &lt;&lt; <span class="string">EOF &gt;&gt;/etc/modprobe.d/blacklist-nouveau.conf</span></span><br><span class="line"><span class="string">blacklist nouveau</span></span><br><span class="line"><span class="string">options nouveau modeset=0</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"><span class="comment"># 2</span></span><br><span class="line">update-initramfs -u</span><br><span class="line"><span class="comment"># 3</span></span><br><span class="line">reboot</span><br></pre></td></tr></table></figure></li>
-<li><p>第三步：在BIOS里<strong>禁用secure boot</strong></p>
-</li>
-<li><p>第四步【2080Ti版本】：在<a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-downloads">官网下载地址</a><strong>下载cuda驱动</strong>  </p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200924184743807.png" alt="image-20200924184743807"></p>
-</li>
+<h2 id="cuda驱动安装">2.5 CUDA驱动安装</h2>
+<p>查看GPU版本 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ lspci | grep -i nvidia</span><br><span class="line">3b:00.0 VGA compatible controller: NVIDIA Corporation GP100GL [Quadro GP100] (rev a1)</span><br><span class="line">3b:00.1 Audio device: NVIDIA Corporation Device 0fb1 (rev a1)</span><br></pre></td></tr></table></figure> ### 2.5.1 成功安装方式</p>
+<ul>
+<li><p>第一步：安装必备软件，官方推荐的库 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install -y g++ freeglut3-dev build-essential libx11-dev libxmu-dev libxi-dev libglu1-mesa libglu1-mesa-dev</span><br></pre></td></tr></table></figure></p></li>
+<li><p>第二步：<a target="_blank" rel="noopener" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile-nouveau">禁用nouveau</a>，这是官方文档的步骤，并且还要重启。连在一起我写了如下脚本，可以直接运行 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1</span></span><br><span class="line">cat &lt;&lt; <span class="string">EOF &gt;&gt;/etc/modprobe.d/blacklist-nouveau.conf</span></span><br><span class="line"><span class="string">blacklist nouveau</span></span><br><span class="line"><span class="string">options nouveau modeset=0</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"><span class="comment"># 2</span></span><br><span class="line">update-initramfs -u</span><br><span class="line"><span class="comment"># 3</span></span><br><span class="line">reboot</span><br></pre></td></tr></table></figure></p></li>
+<li><p>第三步：在BIOS里<strong>禁用secure boot</strong></p></li>
+<li><p>第四步【2080Ti版本】：在<a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-downloads">官网下载地址</a><strong>下载cuda驱动</strong></p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200924184743807.png" alt="" /><figcaption>image-20200924184743807</figcaption>
+</figure></li>
 </ul>
 <p>在上面选好对应的选项，bash命令给你的安装方式了。文件有3G多，开了命令行代理还下了一个小时</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://developer.download.nvidia.com/compute/cuda/11.1.0/local_installers/cuda_11.1.0_455.23.05_linux.run</span><br><span class="line">sudo sh cuda_11.1.0_455.23.05_linux.run</span><br></pre></td></tr></table></figure>
-
 <p>安装就是一路accept之后就装好了</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200924213610919.png" alt="image-20200924213610919"></p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200924213610919.png" alt="" /><figcaption>image-20200924213610919</figcaption>
+</figure>
 <blockquote>
 <p>太长不看版：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/etc/profile添加</span></span><br><span class="line"><span class="built_in">export</span> PATH=/usr/<span class="built_in">local</span>/cuda-11.1/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=/usr/<span class="built_in">local</span>/cuda-11.1/lib64<span class="variable">$&#123;LD_LIBRARY_PATH:+:<span class="variable">$&#123;LD_LIBRARY_PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure>
-
-
-
 <p>分析下提示：</p>
-<ol>
-<li>官方推荐的库还有没装，需要装参考第一步。安装cuda驱动后他们在当前目录放了一些cuda代码样例，这些例子应该是依赖这些库 </li>
+<ol type="1">
+<li>官方推荐的库还有没装，需要装参考第一步。安装cuda驱动后他们在当前目录放了一些cuda代码样例，这些例子应该是依赖这些库</li>
 <li>PATH需要包含<code>/usr/local/cuda-11.1/bin</code>这个路径，这个好办，在<code>/etc/profile</code>里面写入<code>export PATH=/usr/local/cuda-11.1/bin$&#123;PATH:+:$&#123;PATH&#125;&#125;</code>，就明明白白安排了环境变量</li>
-<li><code>LD_LIBRARY_PATH</code>这个变量要包含<code> /usr/local/cuda-11.1/lib64</code>路径，解决的方式上面也给了，那我们也是一样写export语句：<code>export LD_LIBRARY_PATH=/usr/local/cuda-11.1/lib64$&#123;LD_LIBRARY_PATH:+:$&#123;LD_LIBRARY_PATH&#125;&#125;</code></li>
+<li><code>LD_LIBRARY_PATH</code>这个变量要包含<code>/usr/local/cuda-11.1/lib64</code>路径，解决的方式上面也给了，那我们也是一样写export语句：<code>export LD_LIBRARY_PATH=/usr/local/cuda-11.1/lib64$&#123;LD_LIBRARY_PATH:+:$&#123;LD_LIBRARY_PATH&#125;&#125;</code></li>
 <li>配置好环境变量后，你可以打印出来看看对不对：</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$LD_LIBRARY_PATH</span></span><br><span class="line"><span class="comment">#/usr/local/cuda-11.1/lib64</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$PATH</span></span><br><span class="line"><span class="comment">#/usr/local/cuda-11.1/bin:/usr/miniconda3/bin:/usr/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games</span></span><br></pre></td></tr></table></figure>
-
-<ol start="5">
+<ol start="5" type="1">
 <li>还可以用<code>nvidia-smi</code>检查一下GPU状态，如果正常运行，那就基本没问题了。</li>
 </ol>
 </blockquote>
-<h3 id="2-5-2-失败安装方式"><a href="#2-5-2-失败安装方式" class="headerlink" title="2.5.2 失败安装方式"></a>2.5.2 失败安装方式</h3><p>留个纪念吧，致敬我在上面浪费掉的时间</p>
+<h3 id="失败安装方式">2.5.2 失败安装方式</h3>
+<p>留个纪念吧，致敬我在上面浪费掉的时间</p>
 <p><font color=red>失败原因：没有下载对正确的驱动，参考上面的链接进行下载</font></p>
-<p><font color=red>流程复现</font>：直接进入英伟达官网，就开始选择驱动进行安装。看了<a href="%5Bhttps://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#abstract%5D(https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#abstract)">官方安装步骤文档</a>，我采用runfile安装的方式，<font color=red>盲目地下载了</font><a href="%5Bhttps://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal%5D(https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal)">官网首页给的安装包</a> ，这个文件有2G多，下载到了<code>/usr/softwares/downloads/</code>下，照着官方文档的步骤安装，没有成功。<br><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69996576.png" alt="69996576.png"><br>报错：<br><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70067327.png" alt="70067327.png"><br>打开这个日志文件<br><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70101642.png" alt="70101642.png"><br>注意到官网说GP100支持cuda10.2，我装的是cuda11.0<br><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/71404346.png" alt="71404346.png"><br>再去装10.2，仍以失败告终。</p>
-<h3 id="2-5-3-报错"><a href="#2-5-3-报错" class="headerlink" title="2.5.3 报错"></a>2.5.3 报错</h3><h4 id="错误1"><a href="#错误1" class="headerlink" title="错误1"></a>错误1</h4><p>每次意外断电都会遇到的情况，头大！</p>
+<p><font color=red>流程复现</font>：直接进入英伟达官网，就开始选择驱动进行安装。看了<a href="%5Bhttps://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#abstract%5D(https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#abstract)">官方安装步骤文档</a>，我采用runfile安装的方式，<font color=red>盲目地下载了</font><a href="%5Bhttps://developer.nvidia.com/cuda-downloads?target_os=Linux&amp;target_arch=x86_64&amp;target_distro=Ubuntu&amp;target_version=1804&amp;target_type=runfilelocal%5D(https://developer.nvidia.com/cuda-downloads?target_os=Linux&amp;target_arch=x86_64&amp;target_distro=Ubuntu&amp;target_version=1804&amp;target_type=runfilelocal)">官网首页给的安装包</a> ，这个文件有2G多，下载到了<code>/usr/softwares/downloads/</code>下，照着官方文档的步骤安装，没有成功。 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69996576.png" alt="69996576.png" /> 报错： <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70067327.png" alt="70067327.png" /> 打开这个日志文件 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70101642.png" alt="70101642.png" /> 注意到官网说GP100支持cuda10.2，我装的是cuda11.0 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/71404346.png" alt="71404346.png" /> 再去装10.2，仍以失败告终。</p>
+<h3 id="报错">2.5.3 报错</h3>
+<h4 id="错误1">错误1</h4>
+<p>每次意外断电都会遇到的情况，头大！</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NVIDIA-SMI has failed because it couldn&#x27;t communicate with the NVIDIA driver. </span><br><span class="line">Make sure that the latest NVIDIA driver is installed and running.</span><br></pre></td></tr></table></figure>
-
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/89714824">解决方案</a> </p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/89714824">解决方案</a></p>
 <ul>
 <li>第一步：首先看nvidia驱动具体版本号</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ls /usr/src | grep nvidia</span><br><span class="line"><span class="comment"># 我的是nvidia-455.23.05</span></span><br></pre></td></tr></table></figure>
-
 <ul>
 <li>第二步：用 <code>nvcc -V</code> 看了一下驱动还在，用下面的方法应该顺利解决问题</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install dkms</span><br><span class="line">sudo dkms install -m nvidia -v 455.23.05</span><br></pre></td></tr></table></figure>
-
 <p>因为这个方法就已经解决问题了，所以更多的没探索下去了。</p>
 <blockquote>
 <p>我写了一个脚本直接联动了查询和配置（可能有问题，仅供参考）</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo dkms install -m nvidia -v `ls /usr/src | grep nvidia | sed <span class="string">&#x27;s|nvidia-||&#x27;</span>`</span><br></pre></td></tr></table></figure>
 </blockquote>
-<h4 id="错误2"><a href="#错误2" class="headerlink" title="错误2"></a>错误2</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Failed to initialize NVML: Driver/library version mismatch</span><br></pre></td></tr></table></figure>
-
+<h4 id="错误2">错误2</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Failed to initialize NVML: Driver/library version mismatch</span><br></pre></td></tr></table></figure>
 <p><u>解决方案</u></p>
-<ol>
+<ol type="1">
 <li>首先看显卡驱动版本</li>
 </ol>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/driver/nvidia/version</span><br></pre></td></tr></table></figure>
-
 <p>我的是450</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NVRM version: NVIDIA UNIX x86_64 Kernel Module  450.102.04  Tue Dec 29 06:51:23 UTC 2020</span><br><span class="line">GCC version:  gcc version 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04)</span><br></pre></td></tr></table></figure>
-
 <p>那么安装：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install nvidia-driver-450</span><br></pre></td></tr></table></figure>
-
 <p>接下来又报<strong>错误1</strong>，那么按照<strong>错误1</strong>的解决方式做，就成功了。</p>
-<h4 id="错误3"><a href="#错误3" class="headerlink" title="错误3"></a>错误3</h4><p>3080Ti的错误</p>
+<h4 id="错误3">错误3</h4>
+<p>3080Ti的错误</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Unable to determine the device handle for GPU 0000:03:00.0: GPU is lost.  Reboot the system to recover this GPU</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="2-6-cudnn安装"><a href="#2-6-cudnn安装" class="headerlink" title="2.6 cudnn安装"></a>2.6 cudnn安装</h2><p>在官网<a target="_blank" rel="noopener" href="https://developer.nvidia.com/cudnn%E6%B3%A8%E5%86%8C%E8%B4%A6%E5%8F%B7%E5%B9%B6%E4%B8%8B%E8%BD%BD%EF%BC%8C%E6%88%91%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8Google%E8%B4%A6%E5%8F%B7%E7%99%BB%E5%BD%95%E3%80%82%E9%80%89%E6%8B%A9%E4%B8%8B%E8%BD%BDcuDNN">https://developer.nvidia.com/cudnn注册账号并下载，我直接使用Google账号登录。选择下载cuDNN</a> Library for Linux</p>
+<h2 id="cudnn安装">2.6 cudnn安装</h2>
+<p>在官网https://developer.nvidia.com/cudnn注册账号并下载，我直接使用Google账号登录。选择下载cuDNN Library for Linux</p>
 <p>可以看到，对于不同的CUDA，历史有一堆cudnn</p>
-<p><img src="imgs/ubuntu_install_imgs/image-20200929024402667.png" alt="image-20200929024402667"></p>
+<figure>
+<img src="imgs/ubuntu_install_imgs/image-20200929024402667.png" alt="" /><figcaption>image-20200929024402667</figcaption>
+</figure>
 <p>我选了第一个的cuDNN Library for Linux (x86_64)，直接wget就可以</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1 下载</span></span><br><span class="line"><span class="comment"># 2 解压</span></span><br><span class="line">tar xvzf 你的下载包</span><br><span class="line"><span class="comment"># 3. 复制</span></span><br><span class="line">sudo cp cuda/include/* /usr/<span class="built_in">local</span>/cuda-11.1/include</span><br><span class="line">sudo cp cuda/lib64/* /usr/<span class="built_in">local</span>/cuda-11.1/lib64</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="2-7-tmux-配置"><a href="#2-7-tmux-配置" class="headerlink" title="2.7 tmux 配置"></a>2.7 tmux 配置</h2><p>tmux是一个优秀的终端复用软件，如果您经常使用终端，建议马上使用它！相信我你不会后悔。</p>
-<ul>
-<li>首先安装 <code>sudo apt install tmux -y </code></li>
-<li>安装好了就可以使用了，但为了更美（装）观（x）怎能止步于此！下载插件管理器<br><code>git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm</code></li>
-<li>在配置文件<code>~/.tmux.conf</code>里写上你需要的插件，笔者使用了onedark主题，目前觉得还不错。<br>笔者目前的配置文件<a target="_blank" rel="noopener" href="https://github.com/QiangZiBro/Qdotfiles/blob/master/tmux/.tmux.conf">内容</a><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Open in same directory</span></span><br><span class="line"><span class="built_in">bind</span> c new-window -c <span class="string">&quot;#&#123;pane_current_path&#125;&quot;</span></span><br><span class="line"><span class="built_in">bind</span> <span class="string">&#x27;&quot;&#x27;</span> split-window -c <span class="string">&quot;#&#123;pane_current_path&#125;&quot;</span></span><br><span class="line"><span class="built_in">bind</span> % split-window -h -c <span class="string">&quot;#&#123;pane_current_path&#125;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># List of plugins</span></span><br><span class="line"><span class="built_in">set</span> -g @plugin <span class="string">&#x27;tmux-plugins/tpm&#x27;</span></span><br><span class="line"><span class="built_in">set</span> -g @plugin <span class="string">&#x27;tmux-plugins/tmux-sensible&#x27;</span></span><br><span class="line"><span class="built_in">set</span> -g @plugin <span class="string">&#x27;odedlaz/tmux-onedark-theme&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Other examples:</span></span><br><span class="line"><span class="comment"># set -g @plugin &#x27;github_username/plugin_name&#x27;</span></span><br><span class="line"><span class="comment"># set -g @plugin &#x27;git@github.com:user/plugin&#x27;</span></span><br><span class="line"><span class="comment"># set -g @plugin &#x27;git@bitbucket.com:user/plugin&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)</span></span><br><span class="line">run <span class="string">&#x27;~/.tmux/plugins/tpm/tpm&#x27;</span></span><br></pre></td></tr></table></figure></li>
-<li><code>tmux source ~/.tmux.conf</code>让配置生效</li>
-<li>生效后，还不能立即看到效果，这是因为没下载插件，只需要打开tmux，然后<code>&lt;prefix&gt; I</code>就可以安装插件。<code>&lt;prefix&gt;</code>是tmux的前缀键，默认是<code>Ctrl+B</code><br>其他命令：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;prefix&gt; U 更新所有已安装插件</span><br><span class="line">&lt;prefix&gt; Alt U 移除所有插件列表中不存在的插件</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="2-8-显卡驱动安装"><a href="#2-8-显卡驱动安装" class="headerlink" title="2.8 显卡驱动安装"></a>2.8 显卡驱动安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. https://www.nvidia.cn/Download/index.aspx?lang=cn 找到bin文件安装包</span></span><br><span class="line"><span class="comment"># 2. disable the graphical target, which is what keeps the display manager running:</span></span><br><span class="line">systemctl isolate multi-user.target</span><br><span class="line"><span class="comment"># 3. unload the Nvidia drivers </span></span><br><span class="line">modprobe -r nvidia-drm</span><br><span class="line"><span class="comment"># 4. 运行可执行文件，注意参数</span></span><br><span class="line">./NVIDIA-Linux-x86_64-450.80.02.run --no-cc-version-check</span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="三-docker服务部署"><a href="#三-docker服务部署" class="headerlink" title="三 docker服务部署"></a>三 docker服务部署</h1><p>服务器配好了，配置一些服务供日常使用，下面是经常用的几个：</p>
-<h2 id="3-1-gitlab"><a href="#3-1-gitlab" class="headerlink" title="3.1 gitlab"></a>3.1 gitlab</h2><p>参考韦大佬的<a href="%5Bhttps://zhuanlan.zhihu.com/p/49499229%5D(https://zhuanlan.zhihu.com/p/49499229)">文章</a>，真的只要半分钟！</p>
-<h3 id="搭建"><a href="#搭建" class="headerlink" title="搭建"></a>搭建</h3><p>搭建一个gitlab其实非常简单，只需要半分钟，前提是用对合适的工具, 这个工具就是docker，参考搭建<a href="%5Bhttps://zhuanlan.zhihu.com/p/49499229%5D(https://zhuanlan.zhihu.com/p/49499229)">教程</a>。作为管理员，搭建好之后直接<code>docker-compose up -d</code>就可以舒舒服服放在后台运行了。</p>
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><ol>
-<li>首先注册一个账号<br><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/47921521.png" alt="47921521.png"><br>接着登录就ok</li>
-<li>免密使用<br>使用https和ssh连接都可以，笔者使用的是https方式，进行下面的配置可以免得每次push都要输用户名和密码。在mac和Linux的<code>~/.git-credentials</code>里写入账号密码<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ~/.git-credentials</span></span><br><span class="line">https://你的名字:你的密码@你的ip地址:8443   </span><br></pre></td></tr></table></figure>
-让配置生效，不然会发现还是要输密码。<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global credential.helper store</span><br></pre></td></tr></table></figure></li>
-<li>屏蔽自签证书的验证，不然会报http错误<code>git SSL certificate problem</code>。</li>
+<h2 id="tmux-配置">2.7 tmux 配置</h2>
+<p>tmux是一个优秀的终端复用软件，如果您经常使用终端，建议马上使用它！相信我你不会后悔。 - 首先安装 <code>sudo apt install tmux -y</code> - 安装好了就可以使用了，但为了更美（装）观（x）怎能止步于此！下载插件管理器 <code>git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm</code> - 在配置文件<code>~/.tmux.conf</code>里写上你需要的插件，笔者使用了onedark主题，目前觉得还不错。 笔者目前的配置文件<a target="_blank" rel="noopener" href="https://github.com/QiangZiBro/Qdotfiles/blob/master/tmux/.tmux.conf">内容</a> <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Open in same directory</span></span><br><span class="line"><span class="built_in">bind</span> c new-window -c <span class="string">&quot;#&#123;pane_current_path&#125;&quot;</span></span><br><span class="line"><span class="built_in">bind</span> <span class="string">&#x27;&quot;&#x27;</span> split-window -c <span class="string">&quot;#&#123;pane_current_path&#125;&quot;</span></span><br><span class="line"><span class="built_in">bind</span> % split-window -h -c <span class="string">&quot;#&#123;pane_current_path&#125;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># List of plugins</span></span><br><span class="line"><span class="built_in">set</span> -g @plugin <span class="string">&#x27;tmux-plugins/tpm&#x27;</span></span><br><span class="line"><span class="built_in">set</span> -g @plugin <span class="string">&#x27;tmux-plugins/tmux-sensible&#x27;</span></span><br><span class="line"><span class="built_in">set</span> -g @plugin <span class="string">&#x27;odedlaz/tmux-onedark-theme&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Other examples:</span></span><br><span class="line"><span class="comment"># set -g @plugin &#x27;github_username/plugin_name&#x27;</span></span><br><span class="line"><span class="comment"># set -g @plugin &#x27;git@github.com:user/plugin&#x27;</span></span><br><span class="line"><span class="comment"># set -g @plugin &#x27;git@bitbucket.com:user/plugin&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)</span></span><br><span class="line">run <span class="string">&#x27;~/.tmux/plugins/tpm/tpm&#x27;</span></span><br></pre></td></tr></table></figure> - <code>tmux source ~/.tmux.conf</code>让配置生效 - 生效后，还不能立即看到效果，这是因为没下载插件，只需要打开tmux，然后<code>&lt;prefix&gt; I</code>就可以安装插件。<code>&lt;prefix&gt;</code>是tmux的前缀键，默认是<code>Ctrl+B</code> 其他命令： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;prefix&gt; U 更新所有已安装插件</span><br><span class="line">&lt;prefix&gt; Alt U 移除所有插件列表中不存在的插件</span><br></pre></td></tr></table></figure></p>
+<h2 id="显卡驱动安装">2.8 显卡驱动安装</h2>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. https://www.nvidia.cn/Download/index.aspx?lang=cn 找到bin文件安装包</span></span><br><span class="line"><span class="comment"># 2. disable the graphical target, which is what keeps the display manager running:</span></span><br><span class="line">systemctl isolate multi-user.target</span><br><span class="line"><span class="comment"># 3. unload the Nvidia drivers </span></span><br><span class="line">modprobe -r nvidia-drm</span><br><span class="line"><span class="comment"># 4. 运行可执行文件，注意参数</span></span><br><span class="line">./NVIDIA-Linux-x86_64-450.80.02.run --no-cc-version-check</span><br></pre></td></tr></table></figure>
+<h1 id="三-docker服务部署">三 docker服务部署</h1>
+<p>服务器配好了，配置一些服务供日常使用，下面是经常用的几个： ## 3.1 gitlab 参考韦大佬的<a href="%5Bhttps://zhuanlan.zhihu.com/p/49499229%5D(https://zhuanlan.zhihu.com/p/49499229)">文章</a>，真的只要半分钟！ ### 搭建 搭建一个gitlab其实非常简单，只需要半分钟，前提是用对合适的工具, 这个工具就是docker，参考搭建<a href="%5Bhttps://zhuanlan.zhihu.com/p/49499229%5D(https://zhuanlan.zhihu.com/p/49499229)">教程</a>。作为管理员，搭建好之后直接<code>docker-compose up -d</code>就可以舒舒服服放在后台运行了。</p>
+<h3 id="使用">使用</h3>
+<ol type="1">
+<li>首先注册一个账号 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/47921521.png" alt="47921521.png" /> 接着登录就ok</li>
+<li>免密使用 使用https和ssh连接都可以，笔者使用的是https方式，进行下面的配置可以免得每次push都要输用户名和密码。在mac和Linux的<code>~/.git-credentials</code>里写入账号密码 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ~/.git-credentials</span></span><br><span class="line">https://你的名字:你的密码@你的ip地址:8443   </span><br></pre></td></tr></table></figure> 让配置生效，不然会发现还是要输密码。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global credential.helper store</span><br></pre></td></tr></table></figure> 3.屏蔽自签证书的验证，不然会报http错误<code>git SSL certificate problem</code>。</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.sslVerify <span class="string">&quot;false&quot;</span></span><br></pre></td></tr></table></figure>
-<h2 id="3-2-overleaf"><a href="#3-2-overleaf" class="headerlink" title="3.2 overleaf"></a>3.2 overleaf</h2><p>参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/150827584">知乎文章</a>。</p>
-<blockquote>
-<p>Overleaf是开源的在线Latex编辑器软件，个人用户可以在Overleaf官网注册并免费使用Overleaf，Overleaf官网还具有Review等团队协作功能。但是Overleaf官网在国内的访问速度不佳，科学上网后速度才满足日常需求。因此，对于科研团队来说，在自己的服务器上部署Overleaf，从此为整个团队都省去了安装Latex各种包的繁琐，多么幸福的事。需要说明的事，目前开源的个人版本的Overleaf功能没有Overleaf官网齐全，也许还有些小bug，但是就目前的使用来说，足够日常使用了。</p>
-</blockquote>
-<p>我对docker compose文件改了两个地方，一个是映射端口，另一个是挂载目录：<br><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/72125117.png" alt="72125117.png"></p>
-<h1 id="四-后话"><a href="#四-后话" class="headerlink" title="四 后话"></a>四 后话</h1><p>建议每位学习计算机的小伙伴都学习一下linux，因为了解之后，对许多方向（比如做深度学习、后端开发等等）同学的工作非常方便。你可以不用纠结开发系统和娱乐系统之间的定夺，linux系统就用来做开发好了，两者兼得mac了解一下​?:smile:</p>
-<h1 id="五-参考与问题"><a href="#五-参考与问题" class="headerlink" title="五 参考与问题"></a>五 参考与问题</h1><h2 id="应该把软件装在哪个地方？"><a href="#应该把软件装在哪个地方？" class="headerlink" title="应该把软件装在哪个地方？"></a>应该把软件装在哪个地方？</h2><p>参考了<a target="_blank" rel="noopener" href="https://askubuntu.com/questions/6897/where-to-install-programs">这篇文章</a>，了解到一般情况下，我们知道的软件，可以联系管理员装在/usr/local或者 /opt/。我现在选用的方式是，把软件装在<code>/usr/softwares</code>，然后给这个文件夹赋给一个组，组员都能访问到。</p>
-<hr>
+<h2 id="overleaf">3.2 overleaf</h2>
+<p>参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/150827584">知乎文章</a>。 &gt;Overleaf是开源的在线Latex编辑器软件，个人用户可以在Overleaf官网注册并免费使用Overleaf，Overleaf官网还具有Review等团队协作功能。但是Overleaf官网在国内的访问速度不佳，科学上网后速度才满足日常需求。因此，对于科研团队来说，在自己的服务器上部署Overleaf，从此为整个团队都省去了安装Latex各种包的繁琐，多么幸福的事。需要说明的事，目前开源的个人版本的Overleaf功能没有Overleaf官网齐全，也许还有些小bug，但是就目前的使用来说，足够日常使用了。</p>
+<p>我对docker compose文件改了两个地方，一个是映射端口，另一个是挂载目录： <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/72125117.png" alt="72125117.png" /></p>
+<h1 id="四-后话">四 后话</h1>
+<p>建议每位学习计算机的小伙伴都学习一下linux，因为了解之后，对许多方向（比如做深度学习、后端开发等等）同学的工作非常方便。你可以不用纠结开发系统和娱乐系统之间的定夺，linux系统就用来做开发好了，两者兼得mac了解一下​?:smile:</p>
+<h1 id="五-参考与问题">五 参考与问题</h1>
+<h2 id="应该把软件装在哪个地方">应该把软件装在哪个地方？</h2>
+<p>参考了<a target="_blank" rel="noopener" href="https://askubuntu.com/questions/6897/where-to-install-programs">这篇文章</a>，了解到一般情况下，我们知道的软件，可以联系管理员装在/usr/local或者 /opt/。我现在选用的方式是，把软件装在<code>/usr/softwares</code>，然后给这个文件夹赋给一个组，组员都能访问到。</p>
+<hr />
 <p><strong>再更</strong></p>
 <p>阮一峰写过一篇刨根问底的<a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2012/02/a_history_of_unix_directory_structure.html">文章</a>，讲解了linux里面目录结构的来历，有兴趣可以看看。总结下来是</p>
 <blockquote>
-<p>　　**/**：存放系统程序，也就是At&amp;t开发的Unix程序。</p>
+<p>　　<strong>/</strong>：存放系统程序，也就是At&amp;t开发的Unix程序。</p>
 <p>　　<strong>/usr</strong>：存放Unix系统商（比如IBM和HP）开发的程序。</p>
 <p>　　<strong>/usr/local</strong>：存放用户自己安装的程序。</p>
-<p>　　<strong>/opt</strong>：在某些系统，用于存放第三方厂商开发的程序，所以取名为option，意为”选装”。</p>
+<p>　　<strong>/opt</strong>：在某些系统，用于存放第三方厂商开发的程序，所以取名为option，意为"选装"。</p>
 </blockquote>
 <ul>
-<li>新用户创建<br><a target="_blank" rel="noopener" href="https://www.tecmint.com/manage-users-and-groups-in-linux/">https://www.tecmint.com/manage-users-and-groups-in-linux/</a></li>
-</ul>
-<ul>
-<li>共享文件夹的创建<br><a target="_blank" rel="noopener" href="https://www.tecmint.com/create-a-shared-directory-in-linux/">https://www.tecmint.com/create-a-shared-directory-in-linux/</a></li>
-</ul>
-<ul>
-<li>戴尔工作站（Precision 7920）安装双系统win10+ubuntu18.04<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/jcsm__/article/details/105937544">https://blog.csdn.net/jcsm__/article/details/105937544</a></li>
-</ul>
-<ul>
-<li>Linux有哪些命令行神器值得使用？<br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/Mn5Vlftwm_mSt3RY-rI8dw">https://mp.weixin.qq.com/s/Mn5Vlftwm_mSt3RY-rI8dw</a></li>
-<li>ubuntu18.04 安装NVIDIA显卡驱动与 cuda10 环境<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq997843911/article/details/85039021">https://blog.csdn.net/qq997843911/article/details/85039021</a></li>
+<li><p>新用户创建 <a target="_blank" rel="noopener" href="https://www.tecmint.com/manage-users-and-groups-in-linux/">https://www.tecmint.com/manage-users-and-groups-in-linux/</a></p></li>
+<li><p>共享文件夹的创建 <a target="_blank" rel="noopener" href="https://www.tecmint.com/create-a-shared-directory-in-linux/">https://www.tecmint.com/create-a-shared-directory-in-linux/</a></p></li>
+<li><p>戴尔工作站（Precision 7920）安装双系统win10+ubuntu18.04 <a target="_blank" rel="noopener" href="https://blog.csdn.net/jcsm__/article/details/105937544">https://blog.csdn.net/jcsm__/article/details/105937544</a></p></li>
+<li><p>Linux有哪些命令行神器值得使用？ <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/Mn5Vlftwm_mSt3RY-rI8dw">https://mp.weixin.qq.com/s/Mn5Vlftwm_mSt3RY-rI8dw</a></p></li>
+<li><p>ubuntu18.04 安装NVIDIA显卡驱动与 cuda10 环境https://blog.csdn.net/qq997843911/article/details/85039021</p></li>
 </ul>
 
       
@@ -723,7 +792,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -806,6 +875,8 @@
 
 
 
+
+  
 
   
 
