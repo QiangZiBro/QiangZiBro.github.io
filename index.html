@@ -72,7 +72,11 @@
   </style>
 </noscript>
 
-</head>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container use-motion">
@@ -145,7 +149,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://qiangzibro.com/2021/08/09/test/">
+    <link itemprop="mainEntityOfPage" href="http://qiangzibro.com/2021/08/09/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E3%80%8Astacked-capsule-autoencoders%E3%80%8B(%E4%B8%8A%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -159,7 +163,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/08/09/test/" class="post-title-link" itemprop="url">test</a>
+            <a href="/2021/08/09/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E3%80%8Astacked-capsule-autoencoders%E3%80%8B(%E4%B8%8A%EF%BC%89/" class="post-title-link" itemprop="url">动手实现《stacked capsule autoencoders》(上)</a>
         </h2>
 
         <div class="post-meta">
@@ -170,69 +174,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-08-09 17:14:35 / Modified: 17:17:32" itemprop="dateCreated datePublished" datetime="2021-08-09T17:14:35+08:00">2021-08-09</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><span class="math display">\[\begin{equation}\label{eq1}
-e=mc^2
-\end{equation}\]</span></p>
-<p>the famous matter-energy equation <span class="math inline">\(\eqref{eq1}\)</span> proposed by Einstein ...</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
-    <link itemprop="mainEntityOfPage" href="http://qiangzibro.com/2021/08/09/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E3%80%8Astacked-capsule-autoencoders%E3%80%8B-%E4%B8%8A%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="QiangZiBro">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="QiangZiBro的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/09/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E3%80%8Astacked-capsule-autoencoders%E3%80%8B-%E4%B8%8A%EF%BC%89/" class="post-title-link" itemprop="url">动手实现《stacked capsule autoencoders》(上）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2021-08-09 16:59:29 / Modified: 17:00:00" itemprop="dateCreated datePublished" datetime="2021-08-09T16:59:29+08:00">2021-08-09</time>
+              <time title="Created: 2021-08-09 16:59:29 / Modified: 17:25:44" itemprop="dateCreated datePublished" datetime="2021-08-09T16:59:29+08:00">2021-08-09</time>
             </span>
 
           
@@ -792,7 +734,7 @@ p\left(\mathbf{x}_{1: M}\right)=\prod_{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \f
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">2</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -879,6 +821,59 @@ p\left(\mathbf{x}_{1: M}\right)=\prod_{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \f
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
