@@ -185,7 +185,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-08-10 11:12:23 / Modified: 11:22:28" itemprop="dateCreated datePublished" datetime="2021-08-10T11:12:23+08:00">2021-08-10</time>
+              <time title="Created: 2021-08-10 11:12:23 / Modified: 12:58:37" itemprop="dateCreated datePublished" datetime="2021-08-10T11:12:23+08:00">2021-08-10</time>
             </span>
 
           
@@ -201,18 +201,14 @@
       
           <h2 id="前言">前言</h2>
 <p>博客写完了，也许你希望将生成的静态页面放在github仓库里，亦或是自己购买的公网主机上。之前一直觉得需要使用类似webhook的方式进行更新，其实根本没有必要，直接在按hexo的要求配置即可。</p>
-<h2 id="配置">配置</h2>
-<p><code>rsync</code>是一个远程文件同步工具，支持增量式同步。下载其插件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-rsync --save</span><br></pre></td></tr></table></figure>
-<p>在本地博客配置文件里编辑</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">rsync</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">&lt;host&gt;</span></span><br><span class="line">  <span class="attr">user:</span> <span class="string">&lt;user&gt;</span></span><br><span class="line">  <span class="attr">root:</span> <span class="string">&lt;root&gt;</span></span><br><span class="line">  <span class="attr">port:</span> [<span class="string">port</span>]</span><br><span class="line">  <span class="attr">delete:</span> [<span class="literal">true</span><span class="string">|false</span>]</span><br><span class="line">  <span class="attr">verbose:</span> [<span class="literal">true</span><span class="string">|false</span>]</span><br><span class="line">  <span class="attr">ignore_errors:</span> [<span class="literal">true</span><span class="string">|false</span>]</span><br></pre></td></tr></table></figure>
-<p>可以添加多主机部署，每一个主机的<code>type</code>前面加一个<code>-</code></p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">type:</span> <span class="string">heroku</span></span><br><span class="line">  <span class="attr">repo:</span></span><br></pre></td></tr></table></figure>
-<h2 id="实践">实践</h2>
-<p>上述配置完毕后，使用<code>hexo g -d</code>便可以一键生成、部署到远程了。</p>
-<h2 id="参考">参考</h2>
-<p>[ 1 ] : https://hexo.io/docs/one-command-deployment#Rsync</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/08/10/Hexo%E9%83%A8%E7%BD%B2%E5%8D%9A%E5%AE%A2%E5%88%B0%E8%BF%9C%E7%A8%8B/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
