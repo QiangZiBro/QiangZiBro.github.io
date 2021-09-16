@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
@@ -17,7 +17,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"qiangzibro.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"qiangzibro.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="前言 本次动手实现论文《stacked capsule autoencoders》的pytorch版本。这篇论文的原作者开源了TensorFlow版本[1]，其细节和工程性都挺不错，是个参考的好范本（做研究建议直接参考原项目）。关于pytorch的实现，github也开源了相关例子[2,3,4]，但这些都只实现了原文第二个实验。本文是对其原文第一个实验的复现笔记，后续也计划复现第二个实验。  全部">
@@ -26,7 +26,7 @@
 <meta property="og:url" content="http://qiangzibro.com/2021/08/09/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E3%80%8Astacked-capsule-autoencoders%E3%80%8B(%E4%B8%8A%EF%BC%89/index.html">
 <meta property="og:site_name" content="QiangZiBro的随笔">
 <meta property="og:description" content="前言 本次动手实现论文《stacked capsule autoencoders》的pytorch版本。这篇论文的原作者开源了TensorFlow版本[1]，其细节和工程性都挺不错，是个参考的好范本（做研究建议直接参考原项目）。关于pytorch的实现，github也开源了相关例子[2,3,4]，但这些都只实现了原文第二个实验。本文是对其原文第一个实验的复现笔记，后续也计划复现第二个实验。  全部">
-<meta property="og:locale">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20201204231106857.png">
 <meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20201204231147582.png">
 <meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20201204231236948.png">
@@ -45,7 +45,7 @@
     sidebar: "",
     isHome : false,
     isPost : true,
-    lang   : 'zh'
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -93,7 +93,7 @@
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
-    <div class="toggle" aria-label="Toggle navigation bar">
+    <div class="toggle" aria-label="切换导航栏">
       <span class="toggle-line toggle-line-first"></span>
       <span class="toggle-line toggle-line-middle"></span>
       <span class="toggle-line toggle-line-last"></span>
@@ -123,17 +123,17 @@
   <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">5</span></a>
 
   </li>
         <li class="menu-item menu-item-about">
 
-    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
 
   </li>
   </ul>
@@ -150,6 +150,7 @@
     <i class="fa fa-arrow-up"></i>
     <span>0%</span>
   </div>
+  <div class="reading-progress-bar"></div>
 
 
     <main class="main">
@@ -163,7 +164,7 @@
     
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://qiangzibro.com/2021/08/09/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E3%80%8Astacked-capsule-autoencoders%E3%80%8B(%E4%B8%8A%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -185,16 +186,16 @@
               <span class="post-meta-item-icon">
                 <i class="far fa-calendar"></i>
               </span>
-              <span class="post-meta-item-text">Posted on</span>
+              <span class="post-meta-item-text">发表于</span>
 
-              <time title="Created: 2021-08-09 16:59:29" itemprop="dateCreated datePublished" datetime="2021-08-09T16:59:29+08:00">2021-08-09</time>
+              <time title="创建时间：2021-08-09 16:59:29" itemprop="dateCreated datePublished" datetime="2021-08-09T16:59:29+08:00">2021-08-09</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-08-10 12:56:10" itemprop="dateModified" datetime="2021-08-10T12:56:10+08:00">2021-08-10</time>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-08-10 12:56:10" itemprop="dateModified" datetime="2021-08-10T12:56:10+08:00">2021-08-10</time>
               </span>
 
           
@@ -396,7 +397,7 @@ p\left(\mathbf{x}_{1: M}\right)=\prod_{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \f
         
 
   <div class="followme">
-    <p>Welcome to my other publishing channels</p>
+    <p>欢迎关注我的其它发布渠道</p>
 
     <div class="social-list">
 
@@ -498,10 +499,10 @@ p\left(\mathbf{x}_{1: M}\right)=\prod_{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \f
 
       <ul class="sidebar-nav motion-element">
         <li class="sidebar-nav-toc">
-          Table of Contents
+          文章目录
         </li>
         <li class="sidebar-nav-overview">
-          Overview
+          站点概览
         </li>
       </ul>
 
@@ -524,12 +525,12 @@ p\left(\mathbf{x}_{1: M}\right)=\prod_{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \f
           <a href="/archives/">
         
           <span class="site-state-item-count">5</span>
-          <span class="site-state-item-name">posts</span>
+          <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
         <span class="site-state-item-count">2</span>
-        <span class="site-state-item-name">tags</span>
+        <span class="site-state-item-name">标签</span>
       </div>
   </nav>
 </div>
@@ -572,8 +573,6 @@ p\left(\mathbf{x}_{1: M}\right)=\prod_{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \f
   </span>
   <span class="author" itemprop="copyrightHolder">QiangZiBro</span>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
-  </div>
 
         
 
@@ -598,7 +597,7 @@ p\left(\mathbf{x}_{1: M}\right)=\prod_{m=1}^{M} \sum_{k=1}^{K} \sum_{n=1}^{N} \f
 <script src="/js/motion.js"></script>
 
 
-<script src="/js/schemes/muse.js"></script>
+<script src="/js/schemes/pisces.js"></script>
 
 
 <script src="/js/next-boot.js"></script>
