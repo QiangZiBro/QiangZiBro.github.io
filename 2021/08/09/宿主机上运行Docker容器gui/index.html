@@ -23,7 +23,7 @@
   <meta name="description" content="宿主机上运行Docker容器gui 导言 问：我想在容器里运行一个带cv2.show()&#x2F;plt.show()&#x2F;各种图形显示的程序，该怎么做？">
 <meta property="og:type" content="article">
 <meta property="og:title" content="宿主机上运行Docker容器gui">
-<meta property="og:url" content="http://qiangzibro.com/2021/08/09/%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B8%8A%E8%BF%90%E8%A1%8CDocker%E5%AE%B9%E5%99%A8gui/index.html">
+<meta property="og:url" content="https://qiangzibro.com/2021/08/09/%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B8%8A%E8%BF%90%E8%A1%8CDocker%E5%AE%B9%E5%99%A8gui/index.html">
 <meta property="og:site_name" content="QiangZiBro的随笔">
 <meta property="og:description" content="宿主机上运行Docker容器gui 导言 问：我想在容器里运行一个带cv2.show()&#x2F;plt.show()&#x2F;各种图形显示的程序，该怎么做？">
 <meta property="og:locale" content="zh_CN">
@@ -38,7 +38,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/1046925-20190824165625707-1560779550.png">
 
-<link rel="canonical" href="http://qiangzibro.com/2021/08/09/%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B8%8A%E8%BF%90%E8%A1%8CDocker%E5%AE%B9%E5%99%A8gui/">
+<link rel="canonical" href="https://qiangzibro.com/2021/08/09/%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B8%8A%E8%BF%90%E8%A1%8CDocker%E5%AE%B9%E5%99%A8gui/">
 
 
 <script id="page-configurations">
@@ -172,7 +172,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://qiangzibro.com/2021/08/09/%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B8%8A%E8%BF%90%E8%A1%8CDocker%E5%AE%B9%E5%99%A8gui/">
+    <link itemprop="mainEntityOfPage" href="https://qiangzibro.com/2021/08/09/%E5%AE%BF%E4%B8%BB%E6%9C%BA%E4%B8%8A%E8%BF%90%E8%A1%8CDocker%E5%AE%B9%E5%99%A8gui/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -229,7 +229,7 @@
 <p>第0步，homebrew安装</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)</span>&quot;</span></span><br></pre></td></tr></table></figure>
 <p>第1步，socat 安装，用 <strong>socat</strong> 来解决容器和 Mac 主机 GUI 的通信问题：</p>
-<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/1046925-20190824165625707-1560779550.png" alt="img" style="zoom: 25%;"></p>
+<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/1046925-20190824165625707-1560779550.png" alt="img" style="zoom: 25%;" /></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install socat</span><br></pre></td></tr></table></figure>
 <p>第2步，xquartz 安装，处理 X windows system</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install xquartz</span><br></pre></td></tr></table></figure>
@@ -241,11 +241,11 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">open -a Xquartz</span><br></pre></td></tr></table></figure>
 <p>程序坞可以看到有一个 Xquartz 应用：</p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/1046925-20190824173752510-977533929.png" alt><figcaption>img</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/1046925-20190824173752510-977533929.png" alt="" /><figcaption>img</figcaption>
 </figure>
 <p>在这个应用下进行偏好设置，勾选允许从网络客户端连接：</p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/1046925-20190824174022289-1832774345.png" alt><figcaption>img</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/1046925-20190824174022289-1832774345.png" alt="" /><figcaption>img</figcaption>
 </figure>
 <p><strong>配置之后，此时暂时 Command+Q 退出 Xquartz 应用。</strong></p>
 <p>第4步，Socat 配置，我们在有了 DISPLAY 环境变量之后，才会对 Socat 进行配置，输入：</p>
@@ -532,8 +532,8 @@
 NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
   NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
     var gitalk = new Gitalk({
-      clientID    : 'd7267e710f4e5b149e82',
-      clientSecret: '152585f0f10d29c2b50ab5b4cc7a44560dbf8e24',
+      clientID    : '8464dde13ead68fcda90',
+      clientSecret: 'bb13eeb4abcd38d333a83f12c2991ae22e3cd06a',
       repo        : 'qiangzibro.github.io',
       owner       : 'QiangZiBro',
       admin       : ['QiangZiBro'],

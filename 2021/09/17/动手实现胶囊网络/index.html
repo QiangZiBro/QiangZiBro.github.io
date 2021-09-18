@@ -23,24 +23,24 @@
   <meta name="description" content="前言 2017年，Hinton团队提出胶囊网络，首次将标量型网络扩展到矢量，并运用动态路由方式来进行胶囊之间的传递计算。提出的矢量神经元被认为具有保留物体姿态的能力，为神经网络带来了等变性(equivariance)。本着learning by doing的态度，笔者尝试对这一篇论文进行复现。本文不会对其原论文原理和思想有太多解释。在保证工程性和完整性的同时，尽可能记录自己在实现过程中的总结和反思">
 <meta property="og:type" content="article">
 <meta property="og:title" content="动手实现胶囊网络">
-<meta property="og:url" content="http://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/index.html">
+<meta property="og:url" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/index.html">
 <meta property="og:site_name" content="QiangZiBro的随笔">
 <meta property="og:description" content="前言 2017年，Hinton团队提出胶囊网络，首次将标量型网络扩展到矢量，并运用动态路由方式来进行胶囊之间的传递计算。提出的矢量神经元被认为具有保留物体姿态的能力，为神经网络带来了等变性(equivariance)。本着learning by doing的态度，笔者尝试对这一篇论文进行复现。本文不会对其原论文原理和思想有太多解释。在保证工程性和完整性的同时，尽可能记录自己在实现过程中的总结和反思">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/53267F57-8828-45D7-8BE2-55D99D628B9A-20210917004648407.png">
-<meta property="og:image" content="http://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/6C85007E-CDD1-4564-884A-150A0C6ADCE9-20210917004648552.png">
-<meta property="og:image" content="http://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/image-20201109183833560-20210917004648615.png">
-<meta property="og:image" content="http://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/image-20201109183855380-20210917004648616.png">
-<meta property="og:image" content="http://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/image-20201109185258096-20210917004648553.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/53267F57-8828-45D7-8BE2-55D99D628B9A-20210917004648407.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/6C85007E-CDD1-4564-884A-150A0C6ADCE9-20210917004648552.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/image-20201109183833560-20210917004648615.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/image-20201109183855380-20210917004648616.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/image-20201109185258096-20210917004648553.png">
 <meta property="article:published_time" content="2021-09-16T16:45:58.000Z">
 <meta property="article:modified_time" content="2021-09-17T14:16:13.106Z">
 <meta property="article:author" content="QiangZiBro">
-<meta property="article:tag" content="Capsule Network">
 <meta property="article:tag" content="Tutorial">
+<meta property="article:tag" content="Capsule Network">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/53267F57-8828-45D7-8BE2-55D99D628B9A-20210917004648407.png">
+<meta name="twitter:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/53267F57-8828-45D7-8BE2-55D99D628B9A-20210917004648407.png">
 
-<link rel="canonical" href="http://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/">
+<link rel="canonical" href="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/">
 
 
 <script id="page-configurations">
@@ -174,7 +174,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/">
+    <link itemprop="mainEntityOfPage" href="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -434,8 +434,8 @@ L_{reconstruction} = ||x - \hat{x} ||^2
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Capsule-Network/" rel="tag"># Capsule Network</a>
               <a href="/tags/Tutorial/" rel="tag"># Tutorial</a>
+              <a href="/tags/Capsule-Network/" rel="tag"># Capsule Network</a>
           </div>
 
         
@@ -637,8 +637,8 @@ L_{reconstruction} = ||x - \hat{x} ||^2
 NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
   NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
     var gitalk = new Gitalk({
-      clientID    : 'd7267e710f4e5b149e82',
-      clientSecret: '152585f0f10d29c2b50ab5b4cc7a44560dbf8e24',
+      clientID    : '8464dde13ead68fcda90',
+      clientSecret: 'bb13eeb4abcd38d333a83f12c2991ae22e3cd06a',
       repo        : 'qiangzibro.github.io',
       owner       : 'QiangZiBro',
       admin       : ['QiangZiBro'],

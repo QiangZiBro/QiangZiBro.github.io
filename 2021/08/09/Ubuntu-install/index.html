@@ -23,7 +23,7 @@
   <meta name="description" content="零、前言  本文总结了在Ubuntu上的深度学习环境配置方法，大部分可类比到其他机型、系统上。尽管笔者装过不少系统，但鲜有总结方法经验。之前即没有形成一个体系成笔记记录下来，也没有形成自己的dotfiles使得能方便地移植到其他环境中。这造成的结果就是，每次换系统都要花大量时间进行折腾。为了加速上手新系统的速度而成此文，并初步构建了自己的dotfiles，目前能够在mac和linux上同步使用。谨">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Ubuntu深度学习环境构建">
-<meta property="og:url" content="http://qiangzibro.com/2021/08/09/Ubuntu-install/index.html">
+<meta property="og:url" content="https://qiangzibro.com/2021/08/09/Ubuntu-install/index.html">
 <meta property="og:site_name" content="QiangZiBro的随笔">
 <meta property="og:description" content="零、前言  本文总结了在Ubuntu上的深度学习环境配置方法，大部分可类比到其他机型、系统上。尽管笔者装过不少系统，但鲜有总结方法经验。之前即没有形成一个体系成笔记记录下来，也没有形成自己的dotfiles使得能方便地移植到其他环境中。这造成的结果就是，每次换系统都要花大量时间进行折腾。为了加速上手新系统的速度而成此文，并初步构建了自己的dotfiles，目前能够在mac和linux上同步使用。谨">
 <meta property="og:locale" content="zh_CN">
@@ -41,7 +41,7 @@
 <meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70067327.png">
 <meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70101642.png">
 <meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/71404346.png">
-<meta property="og:image" content="http://qiangzibro.com/2021/08/09/Ubuntu-install/ubuntu_install_imgs/image-20200929024402667.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/08/09/Ubuntu-install/imgs/ubuntu_install_imgs/image-20200929024402667.png">
 <meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/47921521.png">
 <meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/72125117.png">
 <meta property="article:published_time" content="2021-08-09T07:16:47.000Z">
@@ -51,7 +51,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69266485.jpg">
 
-<link rel="canonical" href="http://qiangzibro.com/2021/08/09/Ubuntu-install/">
+<link rel="canonical" href="https://qiangzibro.com/2021/08/09/Ubuntu-install/">
 
 
 <script id="page-configurations">
@@ -185,7 +185,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://qiangzibro.com/2021/08/09/Ubuntu-install/">
+    <link itemprop="mainEntityOfPage" href="https://qiangzibro.com/2021/08/09/Ubuntu-install/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -235,14 +235,14 @@
 </blockquote>
 <span id="more"></span>
 <p>实验室师兄毕业，笔者接管服务器一台，开始了维护机器的脏乱累之旅。中间经历了</p>
-<p>拆 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69266485.jpg" alt="69266485"></p>
+<p>拆 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69266485.jpg" alt="69266485" /></p>
 <p>拆</p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69305996.jpg" alt><figcaption>69305996</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69305996.jpg" alt="" /><figcaption>69305996</figcaption>
 </figure>
 <p>以及出了问题蹲在一角研究到深夜的时刻...</p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69425003.jpg" alt><figcaption>69425003</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69425003.jpg" alt="" /><figcaption>69425003</figcaption>
 </figure>
 <p>Anyway，对一个Unix爱好者来讲，这是痛并快乐着的。</p>
 <h2 id="机器型号">机器型号</h2>
@@ -263,7 +263,7 @@
 <h2 id="网络配置">1.4 网络配置</h2>
 <p>笔者最开始ip相关配置是直接在图形界面设置好的，因此没有使用命令行。图形界面配置一般不会有问题。中间笔者配第二台机器的时候，把子网掩码写错了，外界网站一直连不上，为此又折腾命令行的相关网络配置。查找资料的时候发现ubuntu管理网络的命令比较繁杂，ubuntu18.04.04使用的是<code>netplan</code>。 网络的配置写在<code>/etc/netplan/01-network-manager-all.yaml</code>这个文件。如果你想通过配置文件和命令行的方式来配置的话，可以编辑这个文件，初始内容如下</p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/68060119.png" alt><figcaption>68060119.png</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/68060119.png" alt="" /><figcaption>68060119.png</figcaption>
 </figure>
 <p>renderer这一行表示你想通过图形界面配置网络，如果是的那么后面就不用写了。通过文件来管理网络，笔者从网上找到的一个例子如下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Let NetworkManager manage all devices on this system</span></span><br><span class="line">network:</span><br><span class="line">  version: 2</span><br><span class="line">  <span class="comment"># renderer: NetworkManager</span></span><br><span class="line">  ethernets:</span><br><span class="line">          ens33:</span><br><span class="line">                  addresses: [192.168.0.111/24]</span><br><span class="line">                  gateway4: 192.168.0.1</span><br><span class="line">                  nameservers:</span><br><span class="line">                        addresses: [192.168.0.1]</span><br></pre></td></tr></table></figure>
@@ -306,22 +306,22 @@
 <h4 id="开机时自动挂载硬盘">开机时自动挂载硬盘</h4>
 <p>打开<code>/etc/fstab</code>，对要开机自动加载的硬盘设置如下的格式</p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70558222.png" alt><figcaption>70558222.png</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70558222.png" alt="" /><figcaption>70558222.png</figcaption>
 </figure>
 <h4 id="做软链接可选">做软链接（可选）</h4>
 <p>我希望在每个硬盘下都建立了以用户为名字的文件，并建立了软链接到所有用户家目录。这样每个用户的家目录下面都可以看到对应硬盘的文件夹，同时又不会公用一个文件夹。像这样：</p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/54072768.png" alt><figcaption>54072768.png</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/54072768.png" alt="" /><figcaption>54072768.png</figcaption>
 </figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> hardware <span class="keyword">in</span> `realpath *TB*`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">        hardware_name=`basename <span class="variable">$hardware</span>`</span><br><span class="line">        <span class="keyword">for</span> user <span class="keyword">in</span> `ls /home`</span><br><span class="line">        <span class="keyword">do</span></span><br><span class="line">                dir=<span class="string">&quot;<span class="variable">$hardware</span>&quot;</span>/<span class="string">&quot;<span class="variable">$user</span>&quot;</span></span><br><span class="line">                linkdir=/home/<span class="string">&quot;<span class="variable">$user</span>&quot;</span>/<span class="string">&quot;<span class="variable">$hardware_name</span>&quot;</span></span><br><span class="line"></span><br><span class="line">                <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$dir</span> --&gt; <span class="variable">$linkdir</span>&quot;</span></span><br><span class="line">                mkdir -p <span class="variable">$dir</span></span><br><span class="line">                ln -s <span class="variable">$dir</span> <span class="variable">$linkdir</span></span><br><span class="line">                </span><br><span class="line">                chown -R <span class="string">&quot;<span class="variable">$user</span>&quot;</span>:deepones   <span class="variable">$dir</span></span><br><span class="line">                chown -R <span class="string">&quot;<span class="variable">$user</span>&quot;</span>:deepones -h <span class="variable">$linkdir</span></span><br><span class="line">        <span class="keyword">done</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
 <h4 id="遇到的问题">遇到的问题</h4>
 <p>发现2TB的硬盘<code>/dev/sda1</code>被挂载了<code>/boot/efi</code>上，导致的情况就是这个硬盘暂时不能被格式化，也不能被直接挂载和使用了。</p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200925105809886.png" alt><figcaption>image-20200925105809886</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200925105809886.png" alt="" /><figcaption>image-20200925105809886</figcaption>
 </figure>
 <p>而我之前装的系统，根目录和efi都是挂载在固态硬盘里的，这里面<code>/dev/sda</code>是固态硬盘</p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200925105928294.png" alt><figcaption>image-20200925105928294</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200925105928294.png" alt="" /><figcaption>image-20200925105928294</figcaption>
 </figure>
 <p>【怎么解决？】要想使用这个硬盘，必须要解除掉<code>/boot/efi</code>的占用，把它挂载到另外一个地方</p>
 <h1 id="二软件安装">二、软件安装</h1>
@@ -354,14 +354,14 @@
 <li><p>第三步：在BIOS里<strong>禁用secure boot</strong></p></li>
 <li><p>第四步【2080Ti版本】：在<a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-downloads">官网下载地址</a><strong>下载cuda驱动</strong></p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200924184743807.png" alt><figcaption>image-20200924184743807</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200924184743807.png" alt="" /><figcaption>image-20200924184743807</figcaption>
 </figure></li>
 </ul>
 <p>在上面选好对应的选项，bash命令给你的安装方式了。文件有3G多，开了命令行代理还下了一个小时</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget https://developer.download.nvidia.com/compute/cuda/11.1.0/local_installers/cuda_11.1.0_455.23.05_linux.run</span><br><span class="line">sudo sh cuda_11.1.0_455.23.05_linux.run</span><br></pre></td></tr></table></figure>
 <p>安装就是一路accept之后就装好了</p>
 <figure>
-<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200924213610919.png" alt><figcaption>image-20200924213610919</figcaption>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200924213610919.png" alt="" /><figcaption>image-20200924213610919</figcaption>
 </figure>
 <blockquote>
 <p>太长不看版：</p>
@@ -380,8 +380,8 @@
 </blockquote>
 <h3 id="失败安装方式">2.5.2 失败安装方式</h3>
 <p>留个纪念吧，致敬我在上面浪费掉的时间</p>
-<p><font color="red">失败原因：没有下载对正确的驱动，参考上面的链接进行下载</font></p>
-<p><font color="red">流程复现</font>：直接进入英伟达官网，就开始选择驱动进行安装。看了<a href="%5Bhttps://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#abstract%5D(https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#abstract)">官方安装步骤文档</a>，我采用runfile安装的方式，<font color="red">盲目地下载了</font><a href="%5Bhttps://developer.nvidia.com/cuda-downloads?target_os=Linux&amp;target_arch=x86_64&amp;target_distro=Ubuntu&amp;target_version=1804&amp;target_type=runfilelocal%5D(https://developer.nvidia.com/cuda-downloads?target_os=Linux&amp;target_arch=x86_64&amp;target_distro=Ubuntu&amp;target_version=1804&amp;target_type=runfilelocal)">官网首页给的安装包</a> ，这个文件有2G多，下载到了<code>/usr/softwares/downloads/</code>下，照着官方文档的步骤安装，没有成功。 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69996576.png" alt="69996576.png"> 报错： <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70067327.png" alt="70067327.png"> 打开这个日志文件 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70101642.png" alt="70101642.png"> 注意到官网说GP100支持cuda10.2，我装的是cuda11.0 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/71404346.png" alt="71404346.png"> 再去装10.2，仍以失败告终。</p>
+<p><font color=red>失败原因：没有下载对正确的驱动，参考上面的链接进行下载</font></p>
+<p><font color=red>流程复现</font>：直接进入英伟达官网，就开始选择驱动进行安装。看了<a href="%5Bhttps://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#abstract%5D(https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#abstract)">官方安装步骤文档</a>，我采用runfile安装的方式，<font color=red>盲目地下载了</font><a href="%5Bhttps://developer.nvidia.com/cuda-downloads?target_os=Linux&amp;target_arch=x86_64&amp;target_distro=Ubuntu&amp;target_version=1804&amp;target_type=runfilelocal%5D(https://developer.nvidia.com/cuda-downloads?target_os=Linux&amp;target_arch=x86_64&amp;target_distro=Ubuntu&amp;target_version=1804&amp;target_type=runfilelocal)">官网首页给的安装包</a> ，这个文件有2G多，下载到了<code>/usr/softwares/downloads/</code>下，照着官方文档的步骤安装，没有成功。 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/69996576.png" alt="69996576.png" /> 报错： <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70067327.png" alt="70067327.png" /> 打开这个日志文件 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/70101642.png" alt="70101642.png" /> 注意到官网说GP100支持cuda10.2，我装的是cuda11.0 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/71404346.png" alt="71404346.png" /> 再去装10.2，仍以失败告终。</p>
 <h3 id="报错">2.5.3 报错</h3>
 <h4 id="错误1">错误1</h4>
 <p>每次意外断电都会遇到的情况，头大！</p>
@@ -419,7 +419,7 @@
 <p>在官网https://developer.nvidia.com/cudnn注册账号并下载，我直接使用Google账号登录。选择下载cuDNN Library for Linux</p>
 <p>可以看到，对于不同的CUDA，历史有一堆cudnn</p>
 <figure>
-<img src="/2021/08/09/Ubuntu-install/ubuntu_install_imgs/image-20200929024402667.png" alt><figcaption>image-20200929024402667</figcaption>
+<img src="imgs/ubuntu_install_imgs/image-20200929024402667.png" alt="" /><figcaption>image-20200929024402667</figcaption>
 </figure>
 <p>我选了第一个的cuDNN Library for Linux (x86_64)，直接wget就可以</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1 下载</span></span><br><span class="line"><span class="comment"># 2 解压</span></span><br><span class="line">tar xvzf 你的下载包</span><br><span class="line"><span class="comment"># 3. 复制</span></span><br><span class="line">sudo cp cuda/include/* /usr/<span class="built_in">local</span>/cuda-11.1/include</span><br><span class="line">sudo cp cuda/lib64/* /usr/<span class="built_in">local</span>/cuda-11.1/lib64</span><br></pre></td></tr></table></figure>
@@ -431,19 +431,19 @@
 <p>服务器配好了，配置一些服务供日常使用，下面是经常用的几个： ## 3.1 gitlab 参考韦大佬的<a href="%5Bhttps://zhuanlan.zhihu.com/p/49499229%5D(https://zhuanlan.zhihu.com/p/49499229)">文章</a>，真的只要半分钟！ ### 搭建 搭建一个gitlab其实非常简单，只需要半分钟，前提是用对合适的工具, 这个工具就是docker，参考搭建<a href="%5Bhttps://zhuanlan.zhihu.com/p/49499229%5D(https://zhuanlan.zhihu.com/p/49499229)">教程</a>。作为管理员，搭建好之后直接<code>docker-compose up -d</code>就可以舒舒服服放在后台运行了。</p>
 <h3 id="使用">使用</h3>
 <ol type="1">
-<li>首先注册一个账号 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/47921521.png" alt="47921521.png"> 接着登录就ok</li>
+<li>首先注册一个账号 <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/47921521.png" alt="47921521.png" /> 接着登录就ok</li>
 <li>免密使用 使用https和ssh连接都可以，笔者使用的是https方式，进行下面的配置可以免得每次push都要输用户名和密码。在mac和Linux的<code>~/.git-credentials</code>里写入账号密码 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ~/.git-credentials</span></span><br><span class="line">https://你的名字:你的密码@你的ip地址:8443   </span><br></pre></td></tr></table></figure> 让配置生效，不然会发现还是要输密码。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global credential.helper store</span><br></pre></td></tr></table></figure> 3.屏蔽自签证书的验证，不然会报http错误<code>git SSL certificate problem</code>。</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.sslVerify <span class="string">&quot;false&quot;</span></span><br></pre></td></tr></table></figure>
 <h2 id="overleaf">3.2 overleaf</h2>
 <p>参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/150827584">知乎文章</a>。 &gt;Overleaf是开源的在线Latex编辑器软件，个人用户可以在Overleaf官网注册并免费使用Overleaf，Overleaf官网还具有Review等团队协作功能。但是Overleaf官网在国内的访问速度不佳，科学上网后速度才满足日常需求。因此，对于科研团队来说，在自己的服务器上部署Overleaf，从此为整个团队都省去了安装Latex各种包的繁琐，多么幸福的事。需要说明的事，目前开源的个人版本的Overleaf功能没有Overleaf官网齐全，也许还有些小bug，但是就目前的使用来说，足够日常使用了。</p>
-<p>我对docker compose文件改了两个地方，一个是映射端口，另一个是挂载目录： <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/72125117.png" alt="72125117.png"></p>
+<p>我对docker compose文件改了两个地方，一个是映射端口，另一个是挂载目录： <img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/72125117.png" alt="72125117.png" /></p>
 <h1 id="四-后话">四 后话</h1>
 <p>建议每位学习计算机的小伙伴都学习一下linux，因为了解之后，对许多方向（比如做深度学习、后端开发等等）同学的工作非常方便。你可以不用纠结开发系统和娱乐系统之间的定夺，linux系统就用来做开发好了，两者兼得mac了解一下​?:smile:</p>
 <h1 id="五-参考与问题">五 参考与问题</h1>
 <h2 id="应该把软件装在哪个地方">应该把软件装在哪个地方？</h2>
 <p>参考了<a target="_blank" rel="noopener" href="https://askubuntu.com/questions/6897/where-to-install-programs">这篇文章</a>，了解到一般情况下，我们知道的软件，可以联系管理员装在/usr/local或者 /opt/。我现在选用的方式是，把软件装在<code>/usr/softwares</code>，然后给这个文件夹赋给一个组，组员都能访问到。</p>
-<hr>
+<hr />
 <p><strong>再更</strong></p>
 <p>阮一峰写过一篇刨根问底的<a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2012/02/a_history_of_unix_directory_structure.html">文章</a>，讲解了linux里面目录结构的来历，有兴趣可以看看。总结下来是</p>
 <blockquote>
@@ -706,8 +706,8 @@
 NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
   NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
     var gitalk = new Gitalk({
-      clientID    : 'd7267e710f4e5b149e82',
-      clientSecret: '152585f0f10d29c2b50ab5b4cc7a44560dbf8e24',
+      clientID    : '8464dde13ead68fcda90',
+      clientSecret: 'bb13eeb4abcd38d333a83f12c2991ae22e3cd06a',
       repo        : 'qiangzibro.github.io',
       owner       : 'QiangZiBro',
       admin       : ['QiangZiBro'],
