@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qiangzibro.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言 2017年，Hinton团队提出胶囊网络，首次将标量型网络扩展到矢量，并运用动态路由方式来进行胶囊之间的传递计算。提出的矢量神经元被认为具有保留物体姿态的能力，为神经网络带来了等变性(equivariance)。本着learning by doing的态度，笔者尝试对这一篇论文进行复现。本文不会对其原论文原理和思想有太多解释。在保证工程性和完整性的同时，尽可能记录自己在实现过程中的总结和反思">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动手实现胶囊网络">
+<meta property="og:url" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/index.html">
+<meta property="og:site_name" content="QiangZiBro的随笔">
+<meta property="og:description" content="前言 2017年，Hinton团队提出胶囊网络，首次将标量型网络扩展到矢量，并运用动态路由方式来进行胶囊之间的传递计算。提出的矢量神经元被认为具有保留物体姿态的能力，为神经网络带来了等变性(equivariance)。本着learning by doing的态度，笔者尝试对这一篇论文进行复现。本文不会对其原论文原理和思想有太多解释。在保证工程性和完整性的同时，尽可能记录自己在实现过程中的总结和反思">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/53267F57-8828-45D7-8BE2-55D99D628B9A-20210917004648407.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/6C85007E-CDD1-4564-884A-150A0C6ADCE9-20210917004648552.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/image-20201109183833560-20210917004648615.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/image-20201109183855380-20210917004648616.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/image-20201109185258096-20210917004648553.png">
+<meta property="article:published_time" content="2021-09-16T16:45:58.000Z">
+<meta property="article:modified_time" content="2021-09-17T14:16:13.106Z">
+<meta property="article:author" content="QiangZiBro">
+<meta property="article:tag" content="Tutorial">
+<meta property="article:tag" content="Capsule Network">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/imgs/动手实现胶囊网络/53267F57-8828-45D7-8BE2-55D99D628B9A-20210917004648407.png">
+
+<link rel="canonical" href="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>动手实现胶囊网络 | QiangZiBro的随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="QiangZiBro的随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">QiangZiBro的随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">CS postgraduate/Guitarist</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">9</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">12</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="QiangZiBro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="QiangZiBro的随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          动手实现胶囊网络
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-09-17 00:45:58 / 修改时间：22:16:13" itemprop="dateCreated datePublished" datetime="2021-09-17T00:45:58+08:00">2021-09-17</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言">前言</h1>
+<p>2017年，Hinton团队提出胶囊网络，首次将标量型网络扩展到矢量，并运用动态路由方式来进行胶囊之间的传递计算。提出的矢量神经元被认为具有保留物体姿态的能力，为神经网络带来了等变性(equivariance)。本着learning by doing的态度，笔者尝试对这一篇论文进行复现。本文不会对其原论文原理和思想有太多解释。在保证工程性和完整性的同时，尽可能记录自己在实现过程中的总结和反思。Anyway，实现过程也许会有一些bug，欢迎交流和提交issue~</p>
+<span id="more"></span>
+<blockquote>
+<p><strong>Author</strong>: QiangZiBro.<br />
+<strong>Github</strong>: https://github/QiangZiBro.</p>
+<p><strong>本文notebook地址</strong>：https://github.com/QiangZiBro/capsule_networks_play_ground/blob/main/capsule_networks/notebooks/caps_v2017.ipynb.</p>
+</blockquote>
+<h1 id="基础模块实现">基础模块实现</h1>
+<h2 id="引入必备的库">引入必备的库</h2>
+<p>本文依赖第三方框架pytorch，实验使用1.2，基本来说各个版本都可以用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"><span class="keyword">import</span> torchvision</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"><span class="keyword">from</span> torchvision.utils <span class="keyword">import</span> save_image</span><br></pre></td></tr></table></figure>
+<h2 id="超参数定义">超参数定义</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Device configuration</span></span><br><span class="line">device = torch.device(<span class="string">&#x27;cuda&#x27;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&#x27;cpu&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Hyper-parameters</span></span><br><span class="line">num_epochs = <span class="number">5</span></span><br><span class="line">batch_size = <span class="number">64</span></span><br><span class="line">learning_rate = <span class="number">1e-3</span></span><br></pre></td></tr></table></figure>
+<h2 id="数据加载">数据加载</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># MNIST dataset</span></span><br><span class="line">root=<span class="string">&quot;/home/qiangzibro/2TB1/&quot;</span></span><br><span class="line">train_dataset = torchvision.datasets.MNIST(root=root,</span><br><span class="line">                                           train=<span class="literal">True</span>, </span><br><span class="line">                                           transform=transforms.ToTensor(),</span><br><span class="line">                                           download=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">test_dataset = torchvision.datasets.MNIST(root=root,</span><br><span class="line">                                          train=<span class="literal">False</span>, </span><br><span class="line">                                          transform=transforms.ToTensor())</span><br><span class="line"></span><br><span class="line"><span class="comment"># Data loader</span></span><br><span class="line">train_loader = torch.utils.data.DataLoader(dataset=train_dataset,</span><br><span class="line">                                           batch_size=batch_size, </span><br><span class="line">                                           shuffle=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">test_loader = torch.utils.data.DataLoader(dataset=test_dataset,</span><br><span class="line">                                          batch_size=batch_size, </span><br><span class="line">                                          shuffle=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+<p>对MNIST图片可视化</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">show_img</span>(<span class="params">data_tuple</span>):</span></span><br><span class="line">    img, label = data_tuple</span><br><span class="line">    img = img.squeeze()</span><br><span class="line">    plt.imshow(img)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;label is <span class="subst">&#123;label&#125;</span>&quot;</span>)</span><br><span class="line">    </span><br><span class="line">show_img(test_dataset[<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+<figure>
+<img src="imgs/动手实现胶囊网络/53267F57-8828-45D7-8BE2-55D99D628B9A-20210917004648407.png" alt="" /><figcaption>img</figcaption>
+</figure>
+<h2 id="胶囊网络的压缩函数与动态路由算法">胶囊网络的压缩函数与动态路由算法</h2>
+<p>胶囊网络由三层组成：卷积层，初级胶囊层，卷积胶囊层，其中卷积胶囊层使用了动态路由算法。我们来一一实现这些功能。 首先实现两个helper函数，压缩函数与动态路由算法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">squash</span>(<span class="params">x</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        x: (B, 10, 16)</span></span><br><span class="line"><span class="string">    Return:</span></span><br><span class="line"><span class="string">        squashed x (B, 10, 16)</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    L = torch.norm(x, dim=<span class="number">2</span>, keepdim=<span class="literal">True</span>) <span class="comment">#(B, 10, 1)</span></span><br><span class="line">    L_square = L**<span class="number">2</span> <span class="comment">#(B, 10, 1)</span></span><br><span class="line">    c = (L_square)/(<span class="number">1</span>+L_square)/L <span class="comment">#(B, 10, 1)</span></span><br><span class="line">    </span><br><span class="line">    s = c*x <span class="comment">#(B, 10, 16)</span></span><br><span class="line">    s[s==np.nan] = <span class="number">0</span></span><br><span class="line">    <span class="keyword">return</span> s</span><br><span class="line"></span><br><span class="line">x = torch.rand(<span class="number">1</span>,<span class="number">10</span>,<span class="number">16</span>)</span><br><span class="line">squash(x).shape</span><br></pre></td></tr></table></figure>
+<p>输出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.Size([1, 10, 16])</span><br></pre></td></tr></table></figure>
+<p>动态路由算法相当于一个聚类过程，将底层的若干个向量以迭代的路由方法，选取若干具有代表性的胶囊。</p>
+<ul>
+<li>输入 (B, 10, 32x6x6, 16)</li>
+<li>输出 (B, 10, 16)</li>
+</ul>
+<p>要注意的细节</p>
+<ul>
+<li>b的维度是多少？ 注意b是有batchsize的</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dynamic_routing</span>(<span class="params">x, iterations=<span class="number">3</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        x: u_hat,  (B, 10, 32x6x6, 16, 1)</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    Return:</span></span><br><span class="line"><span class="string">        v: next layer output (B, 10, 16)</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    N = <span class="number">32</span>*<span class="number">6</span>*<span class="number">6</span> <span class="comment"># previous layer</span></span><br><span class="line">    N1 = <span class="number">10</span> <span class="comment"># next layer</span></span><br><span class="line">    B = x.shape[<span class="number">0</span>]</span><br><span class="line">    </span><br><span class="line">    b = torch.zeros(B,N1,N,<span class="number">1</span>, <span class="number">1</span>).to(x.device)</span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(iterations):        </span><br><span class="line">        <span class="comment"># probability of each vector to be distributed is 1</span></span><br><span class="line">        <span class="comment"># (B,10,32*6*6,1, 1)</span></span><br><span class="line">        c = F.softmax(b, dim=<span class="number">1</span>)  </span><br><span class="line"> </span><br><span class="line">        <span class="comment"># (B,10,16)</span></span><br><span class="line">        s = torch.<span class="built_in">sum</span>(x.matmul(c), dim=<span class="number">2</span>).squeeze(-<span class="number">1</span>)</span><br><span class="line">     </span><br><span class="line">        <span class="comment"># (B,10,16)</span></span><br><span class="line">        v = squash(s)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># (B,10,32*6*6,1,1)</span></span><br><span class="line">        b = b + v[:,:,<span class="literal">None</span>,<span class="literal">None</span>,:].matmul(x)</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> v</span><br><span class="line"></span><br><span class="line">x = torch.rand(<span class="number">1</span>,<span class="number">10</span>,<span class="number">32</span>*<span class="number">6</span>*<span class="number">6</span>,<span class="number">16</span>, <span class="number">1</span>)</span><br><span class="line">dynamic_routing(x).shape</span><br></pre></td></tr></table></figure>
+<h2 id="初级胶囊层">初级胶囊层</h2>
+<p>在实现初级胶囊层时，我们要了解一些细节，比如</p>
+<ul>
+<li>怎样表示一个胶囊？ 每个像素点上一个1x8的向量</li>
+<li>怎样计算出初级胶囊？使用32组卷积核，每组输出8个通道（256组卷积核，通道拆分32份也没有问题）</li>
+<li>怎样在程序里存这些胶囊？我的做法是将所有的胶囊放在一列，换句话说，放在一个<code>(B, 32*6*6, 8)</code>的矩阵里面</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PrimaryCapsuleLayer</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.primary_capsule_layer = \</span><br><span class="line">            nn.ModuleList([nn.Conv2d(<span class="number">256</span>,<span class="number">8</span>,<span class="number">9</span>, stride=<span class="number">2</span>) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">32</span>)])</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot; Produce primary capsules</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            x: features with (B, 256, 20, 20)</span></span><br><span class="line"><span class="string">            </span></span><br><span class="line"><span class="string">        Return:</span></span><br><span class="line"><span class="string">            vectors (B, 32*6*6, 8)</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        capsules = [conv(x) <span class="keyword">for</span> conv <span class="keyword">in</span> self.primary_capsule_layer]  <span class="comment"># [[B, 8, 6, 6] * 32] </span></span><br><span class="line">        capsules_reshaped = [c.reshape(-<span class="number">1</span>,<span class="number">8</span>,<span class="number">6</span>*<span class="number">6</span>) <span class="keyword">for</span> c <span class="keyword">in</span> capsules]  <span class="comment"># [[B, 8, 36] * 32] </span></span><br><span class="line">        s = torch.cat(capsules_reshaped, dim=-<span class="number">1</span>).permute(<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>)  <span class="comment"># (B, 32*6*6, 8)</span></span><br><span class="line">        <span class="keyword">return</span> squash(s)</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试单元</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test_for_primary_capsule_layer</span>():</span></span><br><span class="line">    <span class="built_in">input</span> = torch.rand(<span class="number">1</span>,<span class="number">256</span>,<span class="number">20</span>,<span class="number">20</span>)</span><br><span class="line">    layer = PrimaryCapsuleLayer()</span><br><span class="line">    <span class="keyword">assert</span> layer(<span class="built_in">input</span>).shape == (<span class="number">1</span>,<span class="number">32</span>*<span class="number">6</span>*<span class="number">6</span>, <span class="number">8</span>)</span><br><span class="line">test_for_primary_capsule_layer()</span><br></pre></td></tr></table></figure>
+<h2 id="卷积胶囊层">卷积胶囊层</h2>
+<blockquote>
+<p>在实现卷积胶囊层时，我们要了解一些细节有</p>
+<ul>
+<li><p>高维矩阵相乘怎么进行计算？ 比如对(B, 32x6x6, 8)大小的向量矩阵，通过权重矩阵，得到输出(B,10, 32x6x6,16)的矩阵，通过下面高维矩阵相乘方式推出𝑜=𝑊𝑥o=Wx</p>
+<ul>
+<li>W <code>(1, 10, 32x6x6, 16, 8)</code></li>
+<li>x <code>(B, 1,  32x6x6, 8,  1)</code></li>
+<li>o <code>(B, 10, 32x6x6, 16, 1)</code></li>
+</ul>
+<p>上面两个矩阵相乘看起来有点复杂，怎么思考呢？多维矩阵的相乘可以看作最后两个维度作矩阵乘法，两个维度我们肯定很清楚，维度(a,b)和(b,c)两个矩阵相乘就是(a,c)。其他维度要么进行广播机制，要么不变。所以，从上面的维度，可以知道，前两个维度实行广播机制，第三个不变，最后两个维度的乘法也就是(16,8)和(8,1)的向量相乘，完成了变换。因此，就有了下面的例子</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">B = <span class="number">1</span></span><br><span class="line">x = torch.rand(B,<span class="number">32</span>*<span class="number">6</span>*<span class="number">6</span>,<span class="number">8</span>)</span><br><span class="line">x = x[:,<span class="literal">None</span>,...,<span class="literal">None</span>]</span><br><span class="line">    </span><br><span class="line">w = torch.rand(<span class="number">1</span>,<span class="number">10</span>,<span class="number">32</span>*<span class="number">6</span>*<span class="number">6</span>,<span class="number">16</span>,<span class="number">8</span>)</span><br><span class="line">w.matmul(x).shape</span><br><span class="line"><span class="comment"># torch.Size([1, 10, 1152, 16, 1])</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CapsLayer</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self,nclasses=<span class="number">10</span>, out_channels_dim=<span class="number">16</span></span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.W = nn.Parameter(<span class="number">1e-3</span> * torch.randn(<span class="number">1</span>,nclasses,<span class="number">32</span>*<span class="number">6</span>*<span class="number">6</span>,out_channels_dim,<span class="number">8</span>))</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;Predict and routing</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            x: Input vectors, (B, 32*6*6, 8)</span></span><br><span class="line"><span class="string">            </span></span><br><span class="line"><span class="string">        Return:</span></span><br><span class="line"><span class="string">            class capsules, (B, 10, 16)</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        x = x[:,<span class="literal">None</span>,...,<span class="literal">None</span>]</span><br><span class="line">        u_hat = self.W.matmul(x)  <span class="comment"># (B, 10, 32x6x6, 16, 1)</span></span><br><span class="line">        <span class="keyword">assert</span> u_hat.shape[<span class="number">1</span>:] == (<span class="number">10</span>, <span class="number">32</span>*<span class="number">6</span>*<span class="number">6</span>, <span class="number">16</span>, <span class="number">1</span>)</span><br><span class="line">        class_capsules = dynamic_routing(u_hat)</span><br><span class="line">        <span class="keyword">return</span> class_capsules</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test_for_caps_layer</span>():</span></span><br><span class="line">    <span class="built_in">input</span> = torch.rand(<span class="number">1</span>,<span class="number">32</span>*<span class="number">6</span>*<span class="number">6</span>,<span class="number">8</span>)</span><br><span class="line">    layer = CapsLayer()</span><br><span class="line">    <span class="keyword">assert</span> layer(<span class="built_in">input</span>).shape == (<span class="number">1</span>,<span class="number">10</span>,<span class="number">16</span>)</span><br><span class="line">test_for_caps_layer()</span><br></pre></td></tr></table></figure>
+<h2 id="胶囊网络">胶囊网络</h2>
+<p>实现了前面必须的几层，相信胶囊网络也是非常好搭了。我们定义的胶囊网络最后输出为10个分类向量</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CapsNet</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.conv_layer = nn.Conv2d(<span class="number">1</span>,<span class="number">256</span>,<span class="number">9</span>)</span><br><span class="line">        self.primary_layer = PrimaryCapsuleLayer()</span><br><span class="line">        self.caps_layer = CapsLayer(nclasses=<span class="number">10</span>, out_channels_dim=<span class="number">16</span>)</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            x : Input img, (B, 1, 28, 28)</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">        Return:</span></span><br><span class="line"><span class="string">            the class capsules, each capsule is a 16 dimension vector</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        x = self.conv_layer(x)  <span class="comment"># (B, 256, 20, 20)</span></span><br><span class="line">        x = self.primary_layer(x)  <span class="comment"># (B, 32*6*6, 8)</span></span><br><span class="line">        x = self.caps_layer(x)  <span class="comment"># (B, 10, 16)</span></span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test_for_caps_net</span>():</span></span><br><span class="line">    <span class="built_in">input</span> = torch.rand(<span class="number">1</span>,<span class="number">1</span>,<span class="number">28</span>,<span class="number">28</span>)</span><br><span class="line">    model = CapsNet()</span><br><span class="line">    <span class="keyword">assert</span> model(<span class="built_in">input</span>).shape == (<span class="number">1</span>,<span class="number">10</span>,<span class="number">16</span>)</span><br><span class="line">    </span><br><span class="line">test_for_caps_net()</span><br></pre></td></tr></table></figure>
+<h1 id="胶囊网络的分类实验">胶囊网络的分类实验</h1>
+<h2 id="margin-loss">margin loss</h2>
+<p>现在我们来到第一个实验，训练一个分类网络。首先了解原文提到的损失</p>
+<p><span class="math display">\[
+L_{k}=T_{k} \max \left(0, m^{+}-\left\|\mathbf{v}_{k}\right\|\right)^{2}+\lambda\left(1-T_{k}\right) \max \left(0,\left\|\mathbf{v}_{k}\right\|-m^{-}\right)^{2}
+\]</span></p>
+<p>这其中<span class="math inline">\(\left\|\mathbf{v}_{k}\right\|\)</span>就是胶囊网络最后输出来的分类胶囊，k表示第k个。这个式子可以理解为一个分段函数</p>
+<p><span class="math display">\[
+\begin{equation}
+L_{k}=\left\{
+\begin{aligned}
+\max \left(0, m^{+}-\left\|\mathbf{v}_{k}\right\|\right)^{2}&amp; &amp; {第k个胶囊正确分类} \\
+\lambda \max \left(0,\left\|\mathbf{v}_{k}\right\|-m^{-}\right)^{2} &amp; &amp; {第k个胶囊错误分类}
+\end{aligned}
+\right.
+\end{equation}
+\]</span> 其中<span class="math inline">\(m^{+}=0.9,m^{-}=0.1, \lambda=0.5\)</span>。也就是说，分类胶囊概率（即模长）为0.9以上且分类正确的，以及概率为0.1且错误的，我们都认为是”好“的，因此训练时我们采样梯度下降到方式往这个方向靠拢。</p>
+<blockquote>
+<p><strong>一些细节</strong></p>
+<ul>
+<li>使用onehot向量T和预测胶囊模长相乘来选取正确预测的值，(1-T)和预测胶囊模长相乘来选取错误预测的值</li>
+</ul>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">margin_loss</span>(<span class="params">y, y_hat</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        y: ground truth labels (B)</span></span><br><span class="line"><span class="string">        y_hat: class capsules with (B, 10, 16)</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    Return</span></span><br><span class="line"><span class="string">        the margin loss</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    _<span class="keyword">lambda</span> = <span class="number">0.5</span></span><br><span class="line">    m_plus = <span class="number">0.9</span></span><br><span class="line">    m_minus = <span class="number">0.1</span></span><br><span class="line">    nclasses = <span class="number">10</span></span><br><span class="line">    </span><br><span class="line">    y_norm = y_hat.norm(dim=-<span class="number">1</span>) <span class="comment"># (B,10)</span></span><br><span class="line">    T = F.one_hot(y, nclasses) <span class="comment"># use it as index for right class (B,10)</span></span><br><span class="line">    T = T.<span class="built_in">float</span>()</span><br><span class="line"></span><br><span class="line">    right = torch.<span class="built_in">max</span>(torch.zeros_like(y_norm), m_plus-y_norm*T)</span><br><span class="line">    right = right**<span class="number">2</span></span><br><span class="line">    wrong = torch.<span class="built_in">max</span>(torch.zeros_like(y_norm), y_norm*(<span class="number">1</span>-T)-m_minus)</span><br><span class="line">    wrong = _<span class="keyword">lambda</span>*wrong**<span class="number">2</span></span><br><span class="line">    <span class="keyword">return</span> torch.<span class="built_in">sum</span>(right+wrong)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test_margin_loss</span>():</span></span><br><span class="line">    y = torch.randint(<span class="number">0</span>,<span class="number">10</span>,(<span class="number">20</span>,))</span><br><span class="line">    y_hat = torch.rand(<span class="number">20</span>,<span class="number">10</span>,<span class="number">16</span>)</span><br><span class="line">    <span class="built_in">print</span>(margin_loss(y,y_hat).item())</span><br></pre></td></tr></table></figure>
+<h2 id="训练函数">训练函数</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">train</span>(<span class="params">net, epochs, dataloader,reconstruction=<span class="literal">False</span>, report=<span class="number">30</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot; </span></span><br><span class="line"><span class="string">    global variable:</span></span><br><span class="line"><span class="string">        - train_loader</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    net.train()</span><br><span class="line"></span><br><span class="line">    optimizer = torch.optim.Adam(net.parameters())</span><br><span class="line"></span><br><span class="line">    train_history = []</span><br><span class="line">    <span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(epochs):</span><br><span class="line">        t0 = time.time()</span><br><span class="line">        </span><br><span class="line">        epoch_loss = torch.tensor(<span class="number">0.</span>)</span><br><span class="line">        <span class="keyword">for</span> batch, (X_batch, y_batch) <span class="keyword">in</span> <span class="built_in">enumerate</span>(dataloader):</span><br><span class="line">            X_batch, y_batch = X_batch.to(device), y_batch.to(device)</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> reconstruction:</span><br><span class="line">                y_hat_param = net(X_batch, y_batch)</span><br><span class="line">                loss = total_loss(X_batch, y_batch, y_hat_param)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                y_hat = net(X_batch)</span><br><span class="line">                loss = margin_loss(y_batch, y_hat)</span><br><span class="line">            epoch_loss += loss</span><br><span class="line"></span><br><span class="line">            optimizer.zero_grad()</span><br><span class="line">            loss.backward()</span><br><span class="line">            optimizer.step()</span><br><span class="line"></span><br><span class="line">        train_history.append(epoch_loss.item())</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Epoch <span class="subst">&#123;epoch+<span class="number">1</span>&#125;</span> loss is <span class="subst">&#123;epoch_loss&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> train_history</span><br></pre></td></tr></table></figure>
+<h2 id="实验过程">实验过程</h2>
+<p>训练</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Start training</span></span><br><span class="line">torch.autograd.set_detect_anomaly(<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">encoder = CapsNet().to(device)</span><br><span class="line">train(encoder, <span class="number">5</span>, train_loader, margin_loss, report=<span class="number">460</span>)，</span><br></pre></td></tr></table></figure>
+<p>测试</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Test the model</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate</span>(<span class="params">model, test_loader</span>):</span></span><br><span class="line">    model.<span class="built_in">eval</span>()  <span class="comment"># eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        correct = <span class="number">0</span></span><br><span class="line">        total = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> images, labels <span class="keyword">in</span> test_loader:</span><br><span class="line">            images = images.to(device)</span><br><span class="line">            labels = labels.to(device)</span><br><span class="line">            outputs = model(images)</span><br><span class="line">            outputs = outputs.norm(dim=-<span class="number">1</span>)</span><br><span class="line">            _, predicted = torch.<span class="built_in">max</span>(outputs.data, <span class="number">1</span>)</span><br><span class="line">            total += labels.size(<span class="number">0</span>)</span><br><span class="line">            correct += (predicted == labels).<span class="built_in">sum</span>().item()</span><br><span class="line">    <span class="keyword">return</span> correct / total</span><br><span class="line"></span><br><span class="line">acc = evaluate(encoder, test_loader)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Test Accuracy of the model on the 10000 test images: &#123;:.2f&#125;%&#x27;</span>.<span class="built_in">format</span>(<span class="number">100</span> * acc))</span><br><span class="line"><span class="comment"># Test Accuracy of the model on the 10000 test images: 98.62%</span></span><br></pre></td></tr></table></figure>
+<h2 id="总结">总结</h2>
+<p>有点惊喜，训练了五个epoch，效果达到98.62%，但是每轮训练比较相对参考资料[1]花的时间更多，并且精度没有他们高，这应该与一些参数和计算细节有关，有时间研究下。</p>
+<h1 id="重建实验">重建实验</h1>
+<h2 id="解码器实现">解码器实现</h2>
+<p>除了做简单的分类外，原作者对预测正确的向量进行解码，解码到图片空间。这个过程现有的实现都是用MLP来实现的。也就是说，对一个预测正确的向量(1x16)，使用<code>(16 --&gt; 28*28)</code>的解码网络即可，只是中间网络层数可能需要多一些。原文用了三个全连接层，[1] [2]给隐层size设定都是512，1024。</p>
+<blockquote>
+<p>这里编程的细节有</p>
+<ul>
+<li>运用zip来迭代两个序列</li>
+<li>根据list来选元素: <code>class_capsules[torch.arange(B), y]</code>，参考https://discuss.pytorch.org/t/selecting-element-on-dimension-from-list-of-indexes/36319/3</li>
+<li>在训练的时候，因为前面encoder已经训练过了，我们可以冻结掉前面编码网络参数，只训练解码网络，可以进行下列操作</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set_parameter_requires_grad</span>(<span class="params">model, feature_extracting</span>):</span></span><br><span class="line">    <span class="keyword">if</span> feature_extracting:</span><br><span class="line">        <span class="keyword">for</span> param <span class="keyword">in</span> model.parameters():</span><br><span class="line">            param.requires_grad = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">set_parameter_requires_grad(encoder, <span class="literal">True</span>)</span><br><span class="line"><span class="comment"># 对优化器</span></span><br><span class="line">optimizer = optim.Adam(</span><br><span class="line">        <span class="built_in">filter</span>(<span class="keyword">lambda</span> p: p.requires_grad, net.parameters()),</span><br><span class="line">        lr=<span class="number">0.1</span></span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MLPDecoder</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;Decode the input predicted vectors tor origin images</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    Usage:</span></span><br><span class="line"><span class="string">        decoder = MLPDecoder([512, 1024], 16, (28,28))</span></span><br><span class="line"><span class="string">        reconstructed_x = decoder(selected_capsules)</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, hidden, in_channels, out_shape</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.out_shape = out_shape</span><br><span class="line">        h,w = out_shape</span><br><span class="line">        out_channels = w*h</span><br><span class="line">        self.mlp = nn.Sequential(*[</span><br><span class="line">            nn.Linear(_<span class="keyword">in</span>, _out)</span><br><span class="line">            <span class="keyword">for</span> _<span class="keyword">in</span>,_out <span class="keyword">in</span> <span class="built_in">zip</span>([in_channels]+hidden, hidden+[out_channels])</span><br><span class="line">        ])</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            x: (B,16)</span></span><br><span class="line"><span class="string">            </span></span><br><span class="line"><span class="string">        Return:</span></span><br><span class="line"><span class="string">            reconstructed images with (B,1,28,28)</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        B = x.shape[<span class="number">0</span>]</span><br><span class="line">        x = self.mlp(x)</span><br><span class="line">        x = x.reshape(B, <span class="number">1</span>, *self.out_shape)</span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test_decoder</span>():</span></span><br><span class="line">    decoder = MLPDecoder([<span class="number">512</span>, <span class="number">1024</span>], <span class="number">16</span>, (<span class="number">28</span>,<span class="number">28</span>))</span><br><span class="line">    x = torch.rand(<span class="number">5</span>,<span class="number">16</span>)</span><br><span class="line">    <span class="keyword">assert</span> decoder(x).shape == (<span class="number">5</span>,<span class="number">1</span>,<span class="number">28</span>,<span class="number">28</span>)</span><br><span class="line">test_decoder()</span><br></pre></td></tr></table></figure>
+<h2 id="自编码网络实现">自编码网络实现</h2>
+<p>对于自编码器的设计，我们将编解码设得灵活一点，通过构造函数传入</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CapsAE</span>(<span class="params">nn.Module</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, encoder, decoder</span>):</span></span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.encoder = encoder</span><br><span class="line">        self.decoder = decoder</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, x, y</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Args:</span></span><br><span class="line"><span class="string">            x: (B, C, H, W) (B,1,28,28)</span></span><br><span class="line"><span class="string">            y: (B)</span></span><br><span class="line"><span class="string">            </span></span><br><span class="line"><span class="string">        Return:</span></span><br><span class="line"><span class="string">            reconstructed images with (B,1,28,28)</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        B = x.shape[<span class="number">0</span>]</span><br><span class="line">        </span><br><span class="line">        class_capsules = self.encoder(x)  <span class="comment"># (B, 10, 16)</span></span><br><span class="line">        selected_capsules = class_capsules[torch.arange(B), y] <span class="comment">#  (B, 16)</span></span><br><span class="line">        <span class="keyword">assert</span> selected_capsules.shape ==  (B, <span class="number">16</span>)</span><br><span class="line">        </span><br><span class="line">        reconstructed_x = self.decoder(selected_capsules)</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> class_capsules,reconstructed_x</span><br></pre></td></tr></table></figure>
+<h2 id="损失">损失</h2>
+<p>加上重建损失的总损失 <span class="math display">\[
+L_{total} = L_{margin} + 0.0005 \times L_{reconstruction}
+\]</span> 其中 <span class="math display">\[
+L_{reconstruction} = ||x - \hat{x} ||^2
+\]</span></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">total_loss</span>(<span class="params">x, y, y_hat_params, c=<span class="number">0.0005</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot; marigin loss + 0.00005reconstruction loss</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        x: (B,C,H,W)</span></span><br><span class="line"><span class="string">        y: (B,)</span></span><br><span class="line"><span class="string">        y_hat_params: a tuple of (class_capsules, reconstructed_x)</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    class_capsules, reconstructed_x = y_hat_params</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> margin_loss(y, class_capsules)+c*F.mse_loss(x,reconstructed_x)</span><br></pre></td></tr></table></figure>
+<h2 id="实验过程-1">实验过程</h2>
+<p>重新训练自编码器</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">encoder = CapsNet()</span><br><span class="line">decoder = MLPDecoder([<span class="number">512</span>, <span class="number">1024</span>], <span class="number">16</span>, (<span class="number">28</span>,<span class="number">28</span>))</span><br><span class="line">autoencoder = CapsAE(</span><br><span class="line">    encoder = encoder,</span><br><span class="line">    decoder = decoder</span><br><span class="line">).to(device)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_loss = train(autoencoder, <span class="number">5</span>, train_loader, reconstruction=<span class="literal">True</span>, report=<span class="number">460</span>)</span><br></pre></td></tr></table></figure>
+<p>对自编码器，我们从两个方面来评估：</p>
+<ul>
+<li>编码器的分类能力</li>
+<li>解码器解码效果</li>
+</ul>
+<p>编码器的分类能力</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">acc = evaluate(encoder, test_loader)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Test accuracy of the model on the 10000 test images of encoder in AE: &#123;:.2f&#125;%&#x27;</span>.<span class="built_in">format</span>(<span class="number">100</span> * acc))</span><br><span class="line">Test Accuracy of the model on the <span class="number">10000</span> test images of encoder <span class="keyword">in</span> AE: <span class="number">98.80</span>%</span><br></pre></td></tr></table></figure>
+<p>解码效果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate_ae</span>(<span class="params">model, test_loader, once=<span class="literal">False</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot; get all reconstruction results</span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        model: autoencoder</span></span><br><span class="line"><span class="string">        test_loader</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    Return:</span></span><br><span class="line"><span class="string">        origin images and reconstructed images (N,1,28,28)</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    model.<span class="built_in">eval</span>()  <span class="comment"># eval mode (batchnorm uses moving mean/variance instead of mini-batch mean/variance)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        X_ = [] <span class="comment"># reconstructed images</span></span><br><span class="line">        X = [] <span class="comment"># origin images</span></span><br><span class="line">        <span class="keyword">for</span> images, labels <span class="keyword">in</span> test_loader:</span><br><span class="line">            images = images.to(device)</span><br><span class="line">            labels = labels.to(device)</span><br><span class="line">            _, x_ = model(images, labels)</span><br><span class="line">            X_.append(x_)</span><br><span class="line">            X.append(images)</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> once:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            </span><br><span class="line">    <span class="keyword">return</span> torch.cat(X, dim=<span class="number">0</span>),torch.cat(X_, dim=<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>计算重建</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">X,X_ =  evaluate_ae(autoencoder, test_loader, once=<span class="literal">True</span>)</span><br><span class="line">X,X_ = X.cpu(),X_.cpu()</span><br></pre></td></tr></table></figure>
+<p>可视化展示</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">fg, axs = plt.subplots(nrows=<span class="number">2</span>, ncols=<span class="number">10</span>, gridspec_kw=&#123;<span class="string">&#x27;hspace&#x27;</span>: <span class="number">0</span>, <span class="string">&#x27;wspace&#x27;</span>: <span class="number">0.1</span>&#125;, figsize=(<span class="number">13</span>,<span class="number">5</span>))</span><br><span class="line">fg.suptitle(<span class="string">&#x27;Groundtruths - Reconstructions&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">    axs[<span class="number">0</span>, i].imshow(X[i].squeeze(), cmap=<span class="string">&#x27;binary&#x27;</span>)</span><br><span class="line">    axs[<span class="number">1</span>, i].imshow(X_[i].squeeze(), cmap=<span class="string">&#x27;binary&#x27;</span>)</span><br><span class="line">    axs[<span class="number">0</span>, i].axis(<span class="string">&#x27;off&#x27;</span>)</span><br><span class="line">    axs[<span class="number">1</span>, i].axis(<span class="string">&#x27;off&#x27;</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<figure>
+<img src="imgs/动手实现胶囊网络/6C85007E-CDD1-4564-884A-150A0C6ADCE9-20210917004648552.png" alt="" /><figcaption>img</figcaption>
+</figure>
+<h2 id="总结-1">总结</h2>
+<ul>
+<li>重建效果 不是特别好，和[1]相比有些糊，但是基本轮廓是重建出来了</li>
+</ul>
+<h1 id="探究胶囊每一位的作用">探究胶囊每一位的作用</h1>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate_class_capsule</span>(<span class="params">model, x, y, delta=<span class="number">1</span>, dim=<span class="number">0</span>, l=<span class="number">5</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot; Simply adding class capsules digit from -7 to 7, to </span></span><br><span class="line"><span class="string">    see what happens about reconstruction.</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    Args:</span></span><br><span class="line"><span class="string">        model: autoencoder</span></span><br><span class="line"><span class="string">        x: input image (B,1,28,28)</span></span><br><span class="line"><span class="string">        y</span></span><br><span class="line"><span class="string">        dim: which dim you want to research</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    Return </span></span><br><span class="line"><span class="string">        [origin image,reconstructed_xs] [(B,1,28,28), ... ,(B,1,28,28)]</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    model.<span class="built_in">eval</span>()</span><br><span class="line">    B = x.shape[<span class="number">0</span>]</span><br><span class="line">    encoder, decoder = model.encoder, model.decoder</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():        </span><br><span class="line">        <span class="comment"># Auto encoder, but adding class capsules digit from -7 to 7 </span></span><br><span class="line">        class_capsules = encoder(x)  <span class="comment"># (B, 10, 16)</span></span><br><span class="line">        selected_capsules = class_capsules[torch.arange(B), y] <span class="comment">#  (B, 16)</span></span><br><span class="line">        <span class="keyword">assert</span> selected_capsules.shape ==  (B, <span class="number">16</span>)</span><br><span class="line">        </span><br><span class="line">        index = F.one_hot(torch.ones(<span class="number">1</span>, dtype=torch.long)*dim, num_classes=<span class="number">16</span>)</span><br><span class="line">        index = index.<span class="built_in">float</span>().to(device)</span><br><span class="line">        </span><br><span class="line">        shifted_capsules = [selected_capsules+i*delta*index <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(-l,l+<span class="number">1</span>)]</span><br><span class="line">        reconstructed_xs = [decoder(i) <span class="keyword">for</span> i <span class="keyword">in</span> shifted_capsules]</span><br><span class="line">        </span><br><span class="line">    reconstructed_xs.insert(<span class="number">0</span>, x)</span><br><span class="line">    <span class="keyword">return</span> reconstructed_xs</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">research_for_class_capsule_for</span>(<span class="params">i=<span class="number">0</span>,  delta=<span class="number">0.5</span></span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot; Test class capsule dim usage for i th test image</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    result = []</span><br><span class="line">    <span class="keyword">for</span> X,y <span class="keyword">in</span> test_loader:</span><br><span class="line">        X,y = X[i][<span class="literal">None</span>,...].to(device),y[i][<span class="literal">None</span>,...].to(device)</span><br><span class="line">        <span class="keyword">for</span> dim <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">16</span>):</span><br><span class="line">            result.append(</span><br><span class="line">                evaluate_class_capsule(autoencoder, X, y, delta=delta, dim=dim)</span><br><span class="line">            )</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">        </span><br><span class="line">    fg, axs = plt.subplots(nrows=<span class="number">16</span>, ncols=<span class="built_in">len</span>(result[<span class="number">0</span>]), gridspec_kw=&#123;<span class="string">&#x27;hspace&#x27;</span>: <span class="number">0</span>, <span class="string">&#x27;wspace&#x27;</span>: <span class="number">0.1</span>&#125;, figsize=(<span class="number">13</span>,<span class="number">13</span>))</span><br><span class="line">    fg.suptitle(<span class="string">f&#x27;research for each dim in capsule, delta=<span class="subst">&#123;delta&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">16</span>):</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(result[<span class="number">0</span>])):</span><br><span class="line">            axs[i, j].imshow(result[i][j].squeeze().cpu(), cmap=<span class="string">&#x27;binary&#x27;</span>)</span><br><span class="line">            axs[i, j].axis(<span class="string">&#x27;off&#x27;</span>)</span><br><span class="line">    plt.show()</span><br></pre></td></tr></table></figure>
+<h2 id="部分效果">部分效果</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">    research_for_class_capsule_for(i, <span class="number">0.05</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">    research_for_class_capsule_for(i, <span class="number">0.1</span>)</span><br></pre></td></tr></table></figure>
+<p>！</p>
+<figure>
+<img src="imgs/动手实现胶囊网络/image-20201109183833560-20210917004648615.png" alt="" /><figcaption>image-20201109183833560</figcaption>
+</figure>
+<figure>
+<img src="imgs/动手实现胶囊网络/image-20201109183855380-20210917004648616.png" alt="" /><figcaption>image-20201109183855380</figcaption>
+</figure>
+<figure>
+<img src="imgs/动手实现胶囊网络/image-20201109185258096-20210917004648553.png" alt="" /><figcaption>image-20201109185258096</figcaption>
+</figure>
+<h2 id="总结-2">总结</h2>
+<p>使用控制变量的方式观察重建出来的效果，并没有像原论文那样胶囊里每一位都明确控制一个属性，反而没太明显的变化。也许实现中仍有一些问题，欢迎有研究的朋友指正。</p>
+<h1 id="展望和总结">展望和总结</h1>
+<h2 id="总结-3">总结</h2>
+<p>写了两天，写完这篇对胶囊网络的细节更加了然于心，而对胶囊是否work更加持批判的态度。</p>
+<p>2017年胶囊网络的提出之后引出了一个新的研究方向，随即胶囊网络被用在多个领域当中，其中2017版的后续工作最多。将标量网络扩展到矢量网络在直觉上来说是一个很有潜力的方式，但实际实验上效果上并不是很好。Hinton也在最近AAAI会议的演讲称：”之前胶囊网络都是错的，忘记它们吧“，这也让矢量型网络的研究变得争议不断——矢量神经元到底能发挥多少作用，比标量神经网络优越多少，这是一个待考察的问题。</p>
+<p>在初步的三个小实验仍有问题：</p>
+<ul>
+<li>在分类上，训练了五个epoch，效果达到98.62%，但是每轮训练时间相对参考资料[1]慢6倍，并且精度没有他们高，这应该与一些参数和计算细节有关，有时间研究下。</li>
+<li>在重建上，MLP解码器效果不太好，可能是损失的占比有关？</li>
+<li>在第三个实验，使用控制变量的方式观察重建出来的效果，并没有像原论文那样的效果——胶囊里每一位都明确控制一个属性。反而没太明显的变化。也许实现中仍有一些问题，欢迎有研究的朋友指正。</li>
+</ul>
+<h2 id="展望">展望</h2>
+<p>而在具体设计中，到底怎样定义一个矢量神经元，怎样推理矢量神经元之间的关系成为了难题。后续将继续考察矢量神经元在其中的作用，分别复现2018，2019年的堆栈式胶囊编码网络（立个flag），并将算法实现的工程型进一步加强（写个小library）。</p>
+<h1 id="参考资料">参考资料</h1>
+<p>[1] https://github.com/gchochla/capsules-utils [2] https://github.com/gram-ai/capsule-networks</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/QiangZiBro">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/QiangZiBro">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Tutorial/" rel="tag"># Tutorial</a>
+              <a href="/tags/Capsule-Network/" rel="tag"># Capsule Network</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/15/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E3%80%8Astacked-capsule-autoencoders%E3%80%8B(%E4%B8%8A%EF%BC%89/" rel="prev" title="动手实现《stacked capsule autoencoders》">
+      <i class="fa fa-chevron-left"></i> 动手实现《stacked capsule autoencoders》
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/" rel="next" title="动手实践全景图像语义分割">
+      动手实践全景图像语义分割 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E6%A8%A1%E5%9D%97%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">基础模块实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E5%85%A5%E5%BF%85%E5%A4%87%E7%9A%84%E5%BA%93"><span class="nav-number">2.1.</span> <span class="nav-text">引入必备的库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B6%85%E5%8F%82%E6%95%B0%E5%AE%9A%E4%B9%89"><span class="nav-number">2.2.</span> <span class="nav-text">超参数定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8A%A0%E8%BD%BD"><span class="nav-number">2.3.</span> <span class="nav-text">数据加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C%E7%9A%84%E5%8E%8B%E7%BC%A9%E5%87%BD%E6%95%B0%E4%B8%8E%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1%E7%AE%97%E6%B3%95"><span class="nav-number">2.4.</span> <span class="nav-text">胶囊网络的压缩函数与动态路由算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E7%BA%A7%E8%83%B6%E5%9B%8A%E5%B1%82"><span class="nav-number">2.5.</span> <span class="nav-text">初级胶囊层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B7%E7%A7%AF%E8%83%B6%E5%9B%8A%E5%B1%82"><span class="nav-number">2.6.</span> <span class="nav-text">卷积胶囊层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C"><span class="nav-number">2.7.</span> <span class="nav-text">胶囊网络</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C%E7%9A%84%E5%88%86%E7%B1%BB%E5%AE%9E%E9%AA%8C"><span class="nav-number">3.</span> <span class="nav-text">胶囊网络的分类实验</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#margin-loss"><span class="nav-number">3.1.</span> <span class="nav-text">margin loss</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.</span> <span class="nav-text">训练函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">3.3.</span> <span class="nav-text">实验过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%87%8D%E5%BB%BA%E5%AE%9E%E9%AA%8C"><span class="nav-number">4.</span> <span class="nav-text">重建实验</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E7%A0%81%E5%99%A8%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.1.</span> <span class="nav-text">解码器实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E7%BC%96%E7%A0%81%E7%BD%91%E7%BB%9C%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.2.</span> <span class="nav-text">自编码网络实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1"><span class="nav-number">4.3.</span> <span class="nav-text">损失</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E8%BF%87%E7%A8%8B-1"><span class="nav-number">4.4.</span> <span class="nav-text">实验过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">4.5.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A2%E7%A9%B6%E8%83%B6%E5%9B%8A%E6%AF%8F%E4%B8%80%E4%BD%8D%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">探究胶囊每一位的作用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E5%88%86%E6%95%88%E6%9E%9C"><span class="nav-number">5.1.</span> <span class="nav-text">部分效果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-2"><span class="nav-number">5.2.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%95%E6%9C%9B%E5%92%8C%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">展望和总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-3"><span class="nav-number">6.1.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%95%E6%9C%9B"><span class="nav-number">6.2.</span> <span class="nav-text">展望</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QiangZiBro"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">QiangZiBro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/QiangZiBro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;QiangZiBro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/QiangZiBro" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;QiangZiBro" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/30707967" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;30707967" rel="noopener" target="_blank"><i class="fas fa-globe-asia fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiangZiBro</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '8464dde13ead68fcda90',
+      clientSecret: 'bb13eeb4abcd38d333a83f12c2991ae22e3cd06a',
+      repo        : 'qiangzibro.github.io',
+      owner       : 'QiangZiBro',
+      admin       : ['QiangZiBro'],
+      id          : 'cd248f188360d3839b3f05a1a2187a95',
+        language: 'zh-CN',
+      distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

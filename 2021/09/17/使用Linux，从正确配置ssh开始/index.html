@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qiangzibro.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前言 ssh相当于windows上的远程桌面连接，但没有桌面，只有文字终端。ssh是许多Linux使用者入门时必学的一个命令。借助ssh，开发人员可以很方便地连接远程或是局域网的其他电脑，直接在上面进行开发工作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Linux，从正确配置ssh开始">
+<meta property="og:url" content="https://qiangzibro.com/2021/09/17/%E4%BD%BF%E7%94%A8Linux%EF%BC%8C%E4%BB%8E%E6%AD%A3%E7%A1%AE%E9%85%8D%E7%BD%AEssh%E5%BC%80%E5%A7%8B/index.html">
+<meta property="og:site_name" content="QiangZiBro的随笔">
+<meta property="og:description" content="前言 ssh相当于windows上的远程桌面连接，但没有桌面，只有文字终端。ssh是许多Linux使用者入门时必学的一个命令。借助ssh，开发人员可以很方便地连接远程或是局域网的其他电脑，直接在上面进行开发工作。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/WechatIMG102.jpeg">
+<meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200820184652666.png">
+<meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200820195507087.png">
+<meta property="article:published_time" content="2021-09-17T14:27:13.000Z">
+<meta property="article:modified_time" content="2021-09-17T14:29:15.213Z">
+<meta property="article:author" content="QiangZiBro">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Tutorial">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/WechatIMG102.jpeg">
+
+<link rel="canonical" href="https://qiangzibro.com/2021/09/17/%E4%BD%BF%E7%94%A8Linux%EF%BC%8C%E4%BB%8E%E6%AD%A3%E7%A1%AE%E9%85%8D%E7%BD%AEssh%E5%BC%80%E5%A7%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>使用Linux，从正确配置ssh开始 | QiangZiBro的随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="QiangZiBro的随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">QiangZiBro的随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">CS postgraduate/Guitarist</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">9</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">12</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qiangzibro.com/2021/09/17/%E4%BD%BF%E7%94%A8Linux%EF%BC%8C%E4%BB%8E%E6%AD%A3%E7%A1%AE%E9%85%8D%E7%BD%AEssh%E5%BC%80%E5%A7%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="QiangZiBro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="QiangZiBro的随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用Linux，从正确配置ssh开始
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-09-17 22:27:13 / 修改时间：22:29:15" itemprop="dateCreated datePublished" datetime="2021-09-17T22:27:13+08:00">2021-09-17</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="前言">前言</h1>
+<p>ssh相当于windows上的远程桌面连接，但没有桌面，只有文字终端。ssh是许多Linux使用者入门时必学的一个命令。借助ssh，开发人员可以很方便地连接远程或是局域网的其他电脑，直接在上面进行开发工作。</p>
+<span id="more"></span>
+<p>拿笔者自己平时工作流举例，每天到实验室首先打开mac上的item2终端，连接两个扩展屏，再ssh连入几台服务器，切换到tmux，大部分工作都可以在一个终端上完成。</p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/WechatIMG102.jpeg" alt="" /><figcaption>WechatIMG102</figcaption>
+</figure>
+<p>可以说，使用好ssh，我们能更舒心地连接远程；使用好终端，开发人员能够更顺利地完成自己的开发工作。</p>
+<p>本文介绍一些使用ssh的小技巧，非常容易操作，那么， let’s do it!</p>
+<h1 id="基础">基础</h1>
+<h2 id="ssh客户端与服务端">ssh客户端与服务端</h2>
+<p>想要使用ssh，首先需要有个终端软件，其次本地系统要安装有ssh客户端，远程系统要有服务端。</p>
+<p>比如从mac系统连接远程linux服务器，item2无疑是首选的终端软件，而ssh客户端在mac上是内置的；windows建议使用cmder软件，cmder是一款优秀的开源软件，可以让你在windows上有着类似linux的操作感觉。cmder直接集成了ssh客户端，下载方式见<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>。</p>
+<p>对于处在远程的服务端，还需要远程的ssh服务器<strong>安装并打开。</strong>比如对一台新安装的ubuntu18.04系统，一般是只有ssh而没有ssh服务端，可进行下列安装操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt install openssh-server -y</span><br><span class="line">sudo systemctl status ssh <span class="comment">#查看状态</span></span><br><span class="line"><span class="comment"># 如果你的防火墙开启了，使用下面语句</span></span><br><span class="line">sudo ufw allow ssh</span><br></pre></td></tr></table></figure>
+<h2 id="连接方式">连接方式</h2>
+<p>基本的ssh连接方法是</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh username@ip</span><br></pre></td></tr></table></figure>
+<p><code>username</code>表示该机器的用户名，<code>ip</code>表示对应的ip地址。比如，笔者在<code>10.22.75.212</code>的用户名是<code>qiangzibro</code>，只需要在终端输入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh qiangzibro@10.22.75.212</span><br></pre></td></tr></table></figure>
+<p>接下来，终端会提示你一条信息，输入yes回车，会提示你输入密码，就像这样。</p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200820184652666.png" alt="" /><figcaption>image-20200820184652666</figcaption>
+</figure>
+<p>先别着急使用下去，稍加配置可以让我们使用得更加舒心、安全。</p>
+<h1 id="基本配置">基本配置</h1>
+<h2 id="给ip地址取别名">给ip地址取别名</h2>
+<p>长长的ip地址不好记，给ip地址取个别名吧！在mac或者linux上，可以编辑<code>/etc/hosts</code>这个文件，由于是系统文件，需要使用管理员权限。编辑器可以自选，笔者使用的是<code>neovim</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nvim /etc/hosts</span><br></pre></td></tr></table></figure>
+<p>比如我想给<code>10.22.75.177</code>取名叫<code>lab1</code>，添加下面一行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">10.22.75.177 lab1</span><br></pre></td></tr></table></figure>
+<p>在以后的使用中，凡是需要用到ip地址，可以直接用别名代理，比如</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping lab1</span><br></pre></td></tr></table></figure>
+<h2 id="给特定主机上的用户取别名">给特定主机上的用户取别名</h2>
+<p>ip地址取完别名后，我们可以使用类似</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh qiangzibro@lab1</span><br></pre></td></tr></table></figure>
+<p>的方式进行连接，实际上，这样的连接方式还可以进一步简化。</p>
+<p>也就是说，给<code>qiangzibro@lab1</code>也取个别名</p>
+<p>不建议自己造轮子，早年间笔者曾写过比如<code>alias sshqiang="ssh qiangzibro@lab1”</code>的别名，其实没有太大别要，因为进行下面配置可以让以后使用更方便：</p>
+<p>类unix系统（mac或者linux）可以直接编辑<code>~/.ssh/config</code>这个文件，如果没有，自己创建一个。语法如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Host l1</span><br><span class="line">HostName lab1</span><br><span class="line">Port 22</span><br><span class="line">User qiangzibro</span><br></pre></td></tr></table></figure>
+<p>配置很简单，四行分别表示别名、远程主机ip、远程主机ssh端口、远程主机用户名。然后我们可以用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh l1</span><br></pre></td></tr></table></figure>
+<p>进行连接。</p>
+<h2 id="免密码登录">免密码登录</h2>
+<p>经常使用密码登录，一个问题是有安全风险，另外一个是麻烦，太懒了啊，每次输密码多麻烦！ssh还提供一种使用密匙验证的方式进行登录，相信大家在配置github免密登录时也遇到过。百度百科上对其解释如下：</p>
+<blockquote>
+<p>原理是你必须为自己创建一对密匙，并把公用密匙放在需要访问的服务器上。如果你要连接到SSH服务器上，客户端软件就会向服务器发出请求，请求用你的密匙进行安全验证。服务器收到请求之后，先在该服务器上你的主目录下寻找你的公用密匙，然后把它和你发送过来的公用密匙进行比较。如果两个密匙一致，服务器就用公用密匙加密“质询”（challenge）并把它发送给客户端软件。客户端软件收到“质询”之后就可以用你的私人密匙解密再把它发送给服务器。</p>
+</blockquote>
+<p>也就是说，把本地公钥拷贝到远程服务器上，就不需要每次登录使用密码了。具体讲，是把本地<code>~/.ssh/id_rsa.pub</code>内的内容拷贝到远程<code>~/.ssh/authorized_keys</code>文件里。首先看看本地有没有公钥：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat ~/.ssh/id_rsa.pub</span><br></pre></td></tr></table></figure>
+<p>没有，则生成一个</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa</span><br></pre></td></tr></table></figure>
+<p>一路回车按下去，便生成在了<code>~/.ssh/id_rsa.pub</code></p>
+<p>你可以使用复制粘贴最原始的方法，而这种操作也有命令简化了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-copy-id l1 <span class="comment"># 将本地公钥拷贝到远程名为l1用户下，也就是/home/qiangzibro/.ssh/authorized_keys里</span></span><br></pre></td></tr></table></figure>
+<h1 id="更多用法">更多用法</h1>
+<p>前几个配置做完，相信你一定可以更加舒适地使用ssh了。但除了常用的远程连接，ssh还有许多使用的技巧。</p>
+<h2 id="使用scp传文件">使用scp传文件</h2>
+<p>基于ssh协议——把名为<code>local_path</code>的文件， 从本地传到远程家目录下</p>
+<blockquote>
+<p>scp 是 secure copy 的缩写, scp 是 linux 系统下基于 ssh 登陆进行安全的远程文件拷贝命令。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp [-r] local_path l1:~</span><br></pre></td></tr></table></figure>
+<p>两点注意：如果<code>local_path</code>是文件夹，则带一个<code>-r</code>参数，再一个是注意中间的冒号。</p>
+<p>同理，远程到本地：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scp [-r] l1:remote_path local_path</span><br></pre></td></tr></table></figure>
+<h2 id="通过ssh运行远程脚本">通过ssh运行远程脚本</h2>
+<p>运行远程机器的一个命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh l1 <span class="string">&quot;ls&quot;</span></span><br></pre></td></tr></table></figure>
+<p>也许你会问：<strong>直接ssh连接到远程机器，运行程序不就好了，为什么通过ssh命令运行呢？</strong></p>
+<p>其实，单个命令确实没有什么必要，但对于复杂、批量的操作，写在脚本里，可以大大提高我们的效率。比如笔者自己维护的一个dotfiles，其功能就是能够使自己的笔记本，和几个linux服务器同步一份配置，有着相同的使用感觉。整个项目是用git和github管理的。如果一个地方做改动，想同步到其他地方，需要一个机器先push，其他机器再pull等多个操作。其实这些操作都可以交给脚本完成。分享一段笔者写的自动更新脚本：</p>
+<figure>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20200820195507087.png" alt="" /><figcaption>image-20200820195507087</figcaption>
+</figure>
+<blockquote>
+<p>关于dotfiles，就不分享自己的项目了，建议大家创建一份属于自己的dotfiles。毕竟各种配置，只有适合自己的才是最舒服的嘛！github也有许多dotfiles的分享，读者可以去参考。</p>
+</blockquote>
+<h2 id="ssh做代理">ssh做代理</h2>
+<p>ssh 命令除了登陆外还有三种代理功能：</p>
+<ul>
+<li>正向代理（-L）：相当于 iptable 的 port forwarding</li>
+<li>反向代理（-R）：相当于 frp 或者 ngrok</li>
+<li>socks5 代理（-D）：相当于 ss/ssr</li>
+</ul>
+<p>这里不展开赘述，可以参考<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<h1 id="总结">总结</h1>
+<p>本文总结了常用的linux ssh操作，虽然大部分操作都很简单，但可以提升我们使用的体验。作为开发人员，“舒舒服服”地使用操作系统，可是常规操作哦。</p>
+<p>你好，我是强子哥，一个Linux爱好者，也是三维深度学习方向的在读研究生，欢迎关注，共同学习。</p>
+<h1 id="参考">参考</h1>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>https://github.com/cmderdev/cmder/ "cmder的github"<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>https://cmder.net/ "cmder官网"<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>https://zhuanlan.zhihu.com/p/57630633 "韦易笑 SSH 命令的三种代理功能（-L/-R/-D）"<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/QiangZiBro">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/QiangZiBro">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/Tutorial/" rel="tag"># Tutorial</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/" rel="prev" title="动手实践全景图像语义分割">
+      <i class="fa fa-chevron-left"></i> 动手实践全景图像语义分割
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/11/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1%E5%8D%8F%E4%BD%9C%E6%96%B9%E6%B3%95%E8%AE%BA/" rel="next" title="数学建模协作方法论">
+      数学建模协作方法论 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80"><span class="nav-number">2.</span> <span class="nav-text">基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ssh%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%B8%8E%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="nav-number">2.1.</span> <span class="nav-text">ssh客户端与服务端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E6%96%B9%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">连接方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">基本配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%99ip%E5%9C%B0%E5%9D%80%E5%8F%96%E5%88%AB%E5%90%8D"><span class="nav-number">3.1.</span> <span class="nav-text">给ip地址取别名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%99%E7%89%B9%E5%AE%9A%E4%B8%BB%E6%9C%BA%E4%B8%8A%E7%9A%84%E7%94%A8%E6%88%B7%E5%8F%96%E5%88%AB%E5%90%8D"><span class="nav-number">3.2.</span> <span class="nav-text">给特定主机上的用户取别名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%8D%E5%AF%86%E7%A0%81%E7%99%BB%E5%BD%95"><span class="nav-number">3.3.</span> <span class="nav-text">免密码登录</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9B%B4%E5%A4%9A%E7%94%A8%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">更多用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8scp%E4%BC%A0%E6%96%87%E4%BB%B6"><span class="nav-number">4.1.</span> <span class="nav-text">使用scp传文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87ssh%E8%BF%90%E8%A1%8C%E8%BF%9C%E7%A8%8B%E8%84%9A%E6%9C%AC"><span class="nav-number">4.2.</span> <span class="nav-text">通过ssh运行远程脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ssh%E5%81%9A%E4%BB%A3%E7%90%86"><span class="nav-number">4.3.</span> <span class="nav-text">ssh做代理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QiangZiBro"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">QiangZiBro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/QiangZiBro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;QiangZiBro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/QiangZiBro" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;QiangZiBro" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/30707967" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;30707967" rel="noopener" target="_blank"><i class="fas fa-globe-asia fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiangZiBro</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '8464dde13ead68fcda90',
+      clientSecret: 'bb13eeb4abcd38d333a83f12c2991ae22e3cd06a',
+      repo        : 'qiangzibro.github.io',
+      owner       : 'QiangZiBro',
+      admin       : ['QiangZiBro'],
+      id          : 'f2dff0a508cb1a3a041399d9f2ac316b',
+        language: 'zh-CN',
+      distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

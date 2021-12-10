@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qiangzibro.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="导读 相信许多读者体验过b站上的全景视频，如果还没有，快来体验一下吧[1]！只需鼠标点击并移动，便可360度无死角的浏览全景视频。全景图像，又称360°全景图，其数据分布在球面空间上。如下图所示，如果将全景图像展开则会造成畸变，因此，直接将传统二维平面图像处理方法应用到球面数据上，其效果则会大大降低。要解决分布在球面空间上的数据，需要特定的方法，比如球面卷积网络。本文手把手带你实践一个有趣的应用—">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动手实践全景图像语义分割">
+<meta property="og:url" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/index.html">
+<meta property="og:site_name" content="QiangZiBro的随笔">
+<meta property="og:description" content="导读 相信许多读者体验过b站上的全景视频，如果还没有，快来体验一下吧[1]！只需鼠标点击并移动，便可360度无死角的浏览全景视频。全景图像，又称360°全景图，其数据分布在球面空间上。如下图所示，如果将全景图像展开则会造成畸变，因此，直接将传统二维平面图像处理方法应用到球面数据上，其效果则会大大降低。要解决分布在球面空间上的数据，需要特定的方法，比如球面卷积网络。本文手把手带你实践一个有趣的应用—">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/640.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/image-20210816192833332.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/image-20210815194243532.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/image-20210915170201901.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/image-20210915170228705.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/image-20210727184927162.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/env-9114978.gif">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/image-20210727204519252.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/image-20210816180457180.png">
+<meta property="og:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/image-20210816190643319.png">
+<meta property="article:published_time" content="2021-09-16T16:47:18.000Z">
+<meta property="article:modified_time" content="2021-09-17T14:07:02.108Z">
+<meta property="article:author" content="QiangZiBro">
+<meta property="article:tag" content="Tutorial">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/imgs/动手实践全景图像语义分割/640.png">
+
+<link rel="canonical" href="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>动手实践全景图像语义分割 | QiangZiBro的随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="QiangZiBro的随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">QiangZiBro的随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">CS postgraduate/Guitarist</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">9</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">12</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qiangzibro.com/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E8%B7%B5%E5%85%A8%E6%99%AF%E5%9B%BE%E5%83%8F%E8%AF%AD%E4%B9%89%E5%88%86%E5%89%B2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="QiangZiBro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="QiangZiBro的随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          动手实践全景图像语义分割
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-09-17 00:47:18 / 修改时间：22:07:02" itemprop="dateCreated datePublished" datetime="2021-09-17T00:47:18+08:00">2021-09-17</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="导读">导读</h2>
+<p>相信许多读者体验过b站上的全景视频，如果还没有，快来体验一下吧[1]！只需鼠标点击并移动，便可360度无死角的浏览全景视频。全景图像，又称360°全景图，其数据分布在球面空间上。如下图所示，如果将全景图像展开则会造成畸变，因此，直接将传统二维平面图像处理方法应用到球面数据上，其效果则会大大降低。要解决分布在球面空间上的数据，需要特定的方法，比如球面卷积网络。本文手把手带你实践一个有趣的应用——全景图像语义分割，并对多种传统CNN方法和球面CNN方法进行对比。</p>
+<span id="more"></span>
+<figure>
+<img src="imgs/动手实践全景图像语义分割/640.png" alt="" /><figcaption>图片</figcaption>
+</figure>
+<p>如下图所示，全景图分割实例为像素级别分类，每种实例对应一个标签。完成本教程后，你将能够做一个如下图所示的全景图小应用。</p>
+<p><img src="imgs/动手实践全景图像语义分割/image-20210816192833332.png" alt="image-20210816192833332" style="zoom:50%;" /></p>
+<p>本教程以及相关代码托管在https://github.com/QiangZiBro/spherical_image_segmentation_tutorial，欢迎讨论、提Issue</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/QiangZiBro/spherical_image_segmentation_tutorial</span><br><span class="line"><span class="built_in">cd</span> spherical_image_segmentation_tutorial</span><br></pre></td></tr></table></figure>
+<h2 id="环境构建">环境构建</h2>
+<p>基于深度学习的编程环境往往有各种复杂的环境依赖，而各种安装报错总是消磨我们的时间，其实这个过程可以大大缩短。我们所需要的也就是通过一个命令安装所有的依赖并打开环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make up <span class="comment">#等价于 docker-compose up -d</span></span><br></pre></td></tr></table></figure>
+<p>再通过一个命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make <span class="keyword">in</span></span><br></pre></td></tr></table></figure>
+<p>来进入我们需要的环境，然后运行程序。为实现构建这一过程，基于<code>docker</code> –<code>docker-compose</code> – <code>make</code>来搭建我们的环境，其原理如下图所示：</p>
+<p><img src="imgs/动手实践全景图像语义分割/image-20210815194243532.png" alt="环境构建原理图" style="zoom: 33%;" /></p>
+<p><code>docker</code> –<code>docker-compose</code> – <code>make</code>三个工具对应三个配置文件，都在项目根目录进行了声明：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Dockerfile</span><br><span class="line">docker-compose.yml</span><br><span class="line">Makefile</span><br></pre></td></tr></table></figure>
+<p>其中</p>
+<ul>
+<li><code>Dockerfile</code> 定义了实验所需要的所有环境，依据此文件可以编译成docker镜像，其中包含我们需要的库</li>
+<li><code>docker-compose.yml</code>定义了镜像的启动方式，在本文中，我们定义两个服务，一个作为终端来运行命令，一个作为<code>jupyter lab</code>供调试</li>
+<li><code>Makefile</code>定义了启动环境的方式</li>
+</ul>
+<p>本文实验环境</p>
+<ul>
+<li>Ubuntu20.04</li>
+<li>CUDA11.0</li>
+<li>Pytorch1.7</li>
+</ul>
+<h3 id="docker安装">Docker安装</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1.安装docker</span></span><br><span class="line">sudo apt install -y docker docker.io</span><br><span class="line"><span class="comment"># 2.安装英伟达docker</span></span><br><span class="line">distribution=$(. /etc/os-release;<span class="built_in">echo</span> $ID<span class="variable">$VERSION_ID</span>) \</span><br><span class="line">&amp;&amp; curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \</span><br><span class="line">&amp;&amp; curl -s -L https://nvidia.github.io/nvidia-docker/<span class="variable">$distribution</span>/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y nvidia-docker2</span><br><span class="line"><span class="comment"># 3.安装docker-compose(apt常常不能安装最新版本的docker-compose)</span></span><br><span class="line">pip install docker-compose</span><br><span class="line"><span class="comment"># 4.解决linux下docker的权限问题，将用户放在docker组里</span></span><br><span class="line">GROUPNAME=docker</span><br><span class="line">getent group <span class="variable">$GROUPNAME</span> 2&gt;&amp;1 &gt;/dev/null || groupadd <span class="variable">$GROUPNAME</span></span><br><span class="line">sudo usermod -aG docker $(whoami)</span><br><span class="line"><span class="comment"># 5.重启</span></span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
+<h3 id="使用docker镜像">使用Docker镜像</h3>
+<p>Docker镜像构建好之后，可以直接运行docker命令启动镜像，但是这样不是最方便的。使用<code>docker-compose</code>搭配<code>Makefile</code>，具体操作如下：首先写好<code>docker-compose.yml</code>启动文件，可参考本项目对应的<a target="_blank" rel="noopener" href="https://github.com/QiangZiBro/spherical_image_segmentation_tutorial/blob/main/docker-compose.yml">docker-compose.yml</a>，接着，在Makefile里写常见docker相关命令，我们将应用分为启动（up）、关闭（down）、进入容器环境（in）三个需求，Makefile如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">up:</span></span><br><span class="line">	docker-compose up -d</span><br><span class="line"></span><br><span class="line"><span class="section">down:</span></span><br><span class="line">	docker-compose down</span><br><span class="line"></span><br><span class="line"><span class="section">in:</span></span><br><span class="line">	docker-compose exec spherical-env bash</span><br></pre></td></tr></table></figure>
+<p>本项目镜像已上传dockerhub，可以直接使用下列命令下载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker pull qiangzibro/spherical_image_segmentation</span><br><span class="line"><span class="comment"># 或者使用下面命令自己编译</span></span><br><span class="line">make build</span><br></pre></td></tr></table></figure>
+<p>接着，一键完成编译、启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make up <span class="comment">#等价于 docker-compose up -d</span></span><br></pre></td></tr></table></figure>
+<p>再通过下列命令便可以进入终端</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make <span class="keyword">in</span></span><br></pre></td></tr></table></figure>
+<p>使用<code>docker-compose logs</code>可以看到notebook对应的网址</p>
+<h2 id="数据获取">数据获取</h2>
+<p>使用<strong>2D-3D-S 数据集</strong>进行本实验，该数据集提供了来自 2D、2.5D 和 3D 域的各种相互注册的数据，以及实例级语义和几何注释。 它收集在来自 3 座不同建筑的 6 个大型室内区域。 它包含超过 70,000 张 RGB 图像，以及相应的深度、表面法线、语义注释、全局 XYZ 图像（均以常规和 360° 等距柱状图图像的形式）以及相机信息。 它还包括注册的原始和语义注释 3D 网格和点云。</p>
+<p>使用国内数据集网站：https://gas.graviti.cn/，这个网站汇总了AI开发者常见的公开数据集，更方便的是，我们能通过命令上传、下载数据集。对于发布在网站上的数据集，fork后还可以通过命令行进行下载。</p>
+<ol type="a">
+<li><p>打开本文对应数据集链接 https://gas.graviti.cn/dataset/qiangzibro/spherical_segmentation</p></li>
+<li><p>右上角注册登录</p></li>
+<li><p>fork数据集</p></li>
+</ol>
+<figure>
+<img src="imgs/动手实践全景图像语义分割/image-20210915170201901.png" alt="" /><figcaption>image-20210915170201901</figcaption>
+</figure>
+<figure>
+<img src="imgs/动手实践全景图像语义分割/image-20210915170228705.png" alt="" /><figcaption>image-20210915170228705</figcaption>
+</figure>
+<ol start="4" type="a">
+<li>点击网页上方开发者工具，获取使用SDK所需的AccessKey，获取到 AccessKey 后，将其存在项目根目录的<code>gas_key.py</code>里：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">KEY = <span class="string">&quot;&lt;Your-Key&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+<p>然后即可以通过AccessKey可以上传数据、读取数据、使用数据，灵活对接模型开发和训练，与数据pipeline快速集成。</p>
+<ol start="5" type="a">
+<li>AccessKey写入后就可以写代码读取数据了，读完了一行下载代码就可以进行下载。将下载后的数据放在<code>data</code>文件夹下。</li>
+</ol>
+<h2 id="方法">方法</h2>
+<p>使用多种二维CNN方法和球面卷积方法UGSCNN。其中，二维CNN有三种：</p>
+<ul>
+<li>UNet</li>
+<li>ResNet</li>
+<li>FCN</li>
+</ul>
+<p>UGSCNN[3]参考自论文《Spherical CNNs on Unstructured Grids》，下面着重看一下UGSCNN的方法。MeshConv对卷积算子进行定义：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MeshConv</span>(<span class="params">_MeshConv</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, in_channels, out_channels, mesh_file, stride=<span class="number">1</span>, bias=<span class="literal">True</span></span>):</span></span><br><span class="line">        <span class="built_in">super</span>(MeshConv, self).__init__(in_channels, out_channels, mesh_file, stride, bias)</span><br><span class="line">        pkl = self.pkl</span><br><span class="line">        <span class="keyword">if</span> stride == <span class="number">2</span>:</span><br><span class="line">            self.nv_prev = pkl[<span class="string">&#x27;nv_prev&#x27;</span>]</span><br><span class="line">            L = sparse2tensor(pkl[<span class="string">&#x27;L&#x27;</span>].tocsr()[:self.nv_prev].tocoo()) <span class="comment"># laplacian matrix V-&gt;V</span></span><br><span class="line">            F2V = sparse2tensor(pkl[<span class="string">&#x27;F2V&#x27;</span>].tocsr()[:self.nv_prev].tocoo())  <span class="comment"># F-&gt;V, #V x #F</span></span><br><span class="line">        <span class="keyword">else</span>: <span class="comment"># stride == 1</span></span><br><span class="line">            self.nv_prev = pkl[<span class="string">&#x27;V&#x27;</span>].shape[<span class="number">0</span>]</span><br><span class="line">            L = sparse2tensor(pkl[<span class="string">&#x27;L&#x27;</span>].tocoo())</span><br><span class="line">            F2V = sparse2tensor(pkl[<span class="string">&#x27;F2V&#x27;</span>].tocoo())</span><br><span class="line">        self.register_buffer(<span class="string">&quot;L&quot;</span>, L)</span><br><span class="line">        self.register_buffer(<span class="string">&quot;F2V&quot;</span>, F2V)</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span>(<span class="params">self, <span class="built_in">input</span></span>):</span></span><br><span class="line">        <span class="comment"># compute gradient</span></span><br><span class="line">        grad_face = spmatmul(<span class="built_in">input</span>, self.G)</span><br><span class="line">        grad_face = grad_face.view(*(<span class="built_in">input</span>.size()[:<span class="number">2</span>]), <span class="number">3</span>, -<span class="number">1</span>).permute(<span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>) <span class="comment"># gradient, 3 component per face</span></span><br><span class="line">        laplacian = spmatmul(<span class="built_in">input</span>, self.L)</span><br><span class="line">        identity = <span class="built_in">input</span>[..., :self.nv_prev]</span><br><span class="line">        grad_face_ew = torch.<span class="built_in">sum</span>(torch.mul(grad_face, self.EW), keepdim=<span class="literal">False</span>, dim=-<span class="number">1</span>)</span><br><span class="line">        grad_face_ns = torch.<span class="built_in">sum</span>(torch.mul(grad_face, self.NS), keepdim=<span class="literal">False</span>, dim=-<span class="number">1</span>)</span><br><span class="line">        grad_vert_ew = spmatmul(grad_face_ew, self.F2V)</span><br><span class="line">        grad_vert_ns = spmatmul(grad_face_ns, self.F2V)</span><br><span class="line"></span><br><span class="line">        feat = [identity, laplacian, grad_vert_ew, grad_vert_ns]</span><br><span class="line"></span><br><span class="line">        out = torch.stack(feat, dim=-<span class="number">1</span>)</span><br><span class="line">        out = torch.<span class="built_in">sum</span>(torch.<span class="built_in">sum</span>(torch.mul(out.unsqueeze(<span class="number">1</span>), self.coeffs.unsqueeze(<span class="number">2</span>)), dim=<span class="number">2</span>), dim=-<span class="number">1</span>)</span><br><span class="line">        out += self.bias.unsqueeze(-<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> out</span><br></pre></td></tr></table></figure>
+<p>基于MeshConv算子构建了一个Unet形式的分割网络：</p>
+<p><img src="imgs/动手实践全景图像语义分割/image-20210727184927162.png" alt="image-20210727184927162" style="zoom:50%;" /></p>
+<h2 id="训练">训练</h2>
+<p>环境构建好后只需简单的几个命令便可以运行起来</p>
+<figure>
+<img src="imgs/动手实践全景图像语义分割/env-9114978.gif" alt="" /><figcaption>env-9114978</figcaption>
+</figure>
+<p>在使用<code>make in</code>成功进入到容器终端</p>
+<ul>
+<li>基于CNN对网格进行分割</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> cnns</span><br><span class="line"><span class="comment"># 基于</span></span><br><span class="line">./run.sh UNet</span><br><span class="line"><span class="comment"># 基于FCN</span></span><br><span class="line">./run.sh FCN8s</span><br><span class="line"><span class="comment"># 基于ResNetDUCHDC</span></span><br><span class="line">./run.sh ResNetDUCHDC</span><br></pre></td></tr></table></figure>
+<p>脚本<code>run.sh</code>解释</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Model choice</span></span><br><span class="line"><span class="comment"># ResNetDUCHDC,FCN8s,UNet</span></span><br><span class="line"><span class="comment"># Run example</span></span><br><span class="line"><span class="comment"># 1) ./run.sh</span></span><br><span class="line"><span class="comment"># 2) ./run.sh FCN8s</span></span><br><span class="line"><span class="comment"># 3) ./run.sh ResNetDUCHDC</span></span><br><span class="line">model=<span class="string">&quot;<span class="variable">$&#123;1:-UNet&#125;</span>&quot;</span></span><br><span class="line">MESHFILES=../data/mesh_files</span><br><span class="line">DATADIR=../data/2d3ds_pano_small/</span><br><span class="line"><span class="comment"># create log directory</span></span><br><span class="line">mkdir -p logs</span><br><span class="line"></span><br><span class="line">python train.py \</span><br><span class="line">--batch-size 16 \ <span class="comment"># 训练批量大小</span></span><br><span class="line">--test-batch-size 16 \ <span class="comment">#测试批量大小</span></span><br><span class="line">--epochs 200 \ <span class="comment"># 训练epoch数量</span></span><br><span class="line">--data_folder <span class="variable">$DATADIR</span> \</span><br><span class="line">--mesh_folder <span class="variable">$MESHFILES</span> \ <span class="comment"># 正二十面体网格文件位置</span></span><br><span class="line">--fold 3 \ <span class="comment"># K-fold交叉验证，k=3。将原始数据分成K组(K-Fold)，将每个子集数据分别做一次验证集，其余的K-1组子集数据作为训练集，这样会得到K个模型。这K个模型分别在验证集中评估结果，最后的误差MSE(Mean Squared Error)加和平均就得到交叉验证误差。交叉验证有效利用了有限的数据，并且评估结果能够尽可能接近模型在测试集上的表现，可以做为模型优化的指标使用。</span></span><br><span class="line">--log_dir logs/log_<span class="variable">$&#123;model&#125;</span>_f16_cv3_rgbd \ <span class="comment"># 日志目录</span></span><br><span class="line">--decay \ <span class="comment"># 学习率衰减</span></span><br><span class="line">--train_stats_freq 5 \</span><br><span class="line">--model <span class="variable">$&#123;model&#125;</span> \ <span class="comment">#模型选择</span></span><br><span class="line">--in_ch rgbd \ <span class="comment"># 输入数据通道</span></span><br><span class="line">--lr 1e-3 \ <span class="comment"># 学习路</span></span><br><span class="line">--feat 16 <span class="comment">#特征层的数量</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>基于UGSCNN对球面数据进行分割</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ugscnn</span><br><span class="line">./run.sh</span><br></pre></td></tr></table></figure>
+<p>训练200个epoch后，可得如下结果：</p>
+<figure>
+<img src="imgs/动手实践全景图像语义分割/image-20210727204519252.png" alt="" /><figcaption>image-20210727204519252</figcaption>
+</figure>
+<h2 id="测试">测试</h2>
+<p>使用提供的测试脚本<code>test.sh</code>即可进行测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 基于UNet</span></span><br><span class="line">./test.sh UNet</span><br><span class="line"><span class="comment"># 基于FCN</span></span><br><span class="line">./test.sh FCN8s</span><br><span class="line"><span class="comment"># 基于ResNetDUCHDC</span></span><br><span class="line">./test.sh ResNetDUCHDC</span><br></pre></td></tr></table></figure>
+<p>测试结果保存在当前目录下，命名格式为<code>模型名</code>+<code>.npz</code>，将其打开进行结果分析：</p>
+<p>全景图实例</p>
+<p><img src="imgs/动手实践全景图像语义分割/image-20210816180457180.png" alt="image-20210816180457180" style="zoom:33%;" /></p>
+<p>结果</p>
+<figure>
+<img src="imgs/动手实践全景图像语义分割/image-20210816190643319.png" alt="" /><figcaption>image-20210816190643319</figcaption>
+</figure>
+<p>更多结果欢迎打开<a target="_blank" rel="noopener" href="https://github.com/QiangZiBro/spherical_image_segmentation_tutorial/blob/main/spherical_image_segmentation.ipynb">spherical_image_segmentation.ipynb</a> 来动手体验吧！</p>
+<h2 id="总结">总结</h2>
+<p>本文介绍了docker作为环境构建的知识，介绍几种基于传统CNN方法和一种基于球面CNN的方法，并将上述方法在全景数据集上完成了分割任务。</p>
+<h2 id="参考资料">参考资料</h2>
+<p>[ 1 ] : https://www.bilibili.com/video/BV1NT4y1w7cy?from=search&amp;seid=10079355191633664125</p>
+<p>[ 2 ] : https://mp.weixin.qq.com/s/RZqa9aNgK--7pnkJHV1cAw</p>
+<p>[ 3 ] : https://gas.graviti.cn/</p>
+<p>[ 4 ] :https://github.com/maxjiang93/ugscnn/</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/QiangZiBro">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/QiangZiBro">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Tutorial/" rel="tag"># Tutorial</a>
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/17/%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E8%83%B6%E5%9B%8A%E7%BD%91%E7%BB%9C/" rel="prev" title="动手实现胶囊网络">
+      <i class="fa fa-chevron-left"></i> 动手实现胶囊网络
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/09/17/%E4%BD%BF%E7%94%A8Linux%EF%BC%8C%E4%BB%8E%E6%AD%A3%E7%A1%AE%E9%85%8D%E7%BD%AEssh%E5%BC%80%E5%A7%8B/" rel="next" title="使用Linux，从正确配置ssh开始">
+      使用Linux，从正确配置ssh开始 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%BC%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">导读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%9E%84%E5%BB%BA"><span class="nav-number">2.</span> <span class="nav-text">环境构建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#docker%E5%AE%89%E8%A3%85"><span class="nav-number">2.1.</span> <span class="nav-text">Docker安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8docker%E9%95%9C%E5%83%8F"><span class="nav-number">2.2.</span> <span class="nav-text">使用Docker镜像</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96"><span class="nav-number">3.</span> <span class="nav-text">数据获取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83"><span class="nav-number">5.</span> <span class="nav-text">训练</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-number">6.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">8.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QiangZiBro"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">QiangZiBro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/QiangZiBro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;QiangZiBro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/QiangZiBro" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;QiangZiBro" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/30707967" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;30707967" rel="noopener" target="_blank"><i class="fas fa-globe-asia fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiangZiBro</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '8464dde13ead68fcda90',
+      clientSecret: 'bb13eeb4abcd38d333a83f12c2991ae22e3cd06a',
+      repo        : 'qiangzibro.github.io',
+      owner       : 'QiangZiBro',
+      admin       : ['QiangZiBro'],
+      id          : '5a75113846e119cf55a58cc58db63ddb',
+        language: 'zh-CN',
+      distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
