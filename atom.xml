@@ -39,45 +39,6 @@
   </entry>
   
   <entry>
-    <title>动手制作一个透明小电视</title>
-    <link href="https://qiangzibro.com/2021/11/22/holocubic/"/>
-    <id>https://qiangzibro.com/2021/11/22/holocubic/</id>
-    <published>2021-11-22T14:02:44.000Z</published>
-    <updated>2021-11-23T09:10:29.831Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;</summary>
-      
-    
-    
-    
-    
-    <category term="ESP32" scheme="https://qiangzibro.com/tags/ESP32/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>看完鱿鱼游戏后，我用视觉算法做了个小游戏</title>
-    <link href="https://qiangzibro.com/2021/10/20/suqid-game/"/>
-    <id>https://qiangzibro.com/2021/10/20/suqid-game/</id>
-    <published>2021-10-20T05:27:12.000Z</published>
-    <updated>2021-10-26T11:46:13.737Z</updated>
-    
-    <content type="html"><![CDATA[<p>新坑待填中…</p><span id="more"></span><h2 id="引子">引子</h2><p>鱿鱼游戏是最近在Netflix上热播的一部惊悚类型韩剧，它的火热程度到底达到什么程度？在全球90多个国家，它在Netflix的收视率达到第一。它风靡欧洲各国，许多西方人因这部剧开始学习韩语。这部剧为什么这么引人注目呢？其大致设定如此（包含微量剧透，放心施用）</p><p>一个疯狂的组织召集了一群生活绝望的人，邀请他们参加几个游戏，只要全部通过便可以获得四百多亿韩元奖金。但殊不知这些游戏是以生命为赌注，输了游戏收到的是一个个枪子。由此，其剧情设定的惊悚程度可见一斑。</p><p>事情是这样的，笔者在看完第一集，也就是第一个游戏觉得很有意思。其游戏是一二三木头人，小女孩数完“一二三木头人”，所有人不许动，如果动的话收到的就是一枪。<br><img src="123game.gif" alt="motion_detected" style="zoom: 100%;" /></p><p>注意到这里，此剧给了一个检测镜头特写</p><img src="motion_detected.jpg" alt="motion_detected" style="zoom: 33%;" /><p>小女孩的眼睛（摄像头) 检测是否有人系统，检测到移动者的位置后，对这个位置进行射击。</p><p>笔者最担心的计算机视觉算法的应用出现了！看到这么阴间的游戏，我深思良久，决定用视觉算法亲自实现一个123木头人游戏！</p><h2 id="方法设计">方法设计</h2><p>这里面最关键的问题是精确地识别运动的目标，先看看有哪些方法：</p><p>笔者先决定用背景差法提取直接提取运动目标，这样做的一个问题是：我们需要反复调节差值图的轮廓面积（Contour Area），调就调吧，于是我用OpenCV写了一个参数标定程序</p><p>还是有许多小框框</p>]]></content>
-    
-    
-    <summary type="html">&lt;p&gt;新坑待填中…&lt;/p&gt;</summary>
-    
-    
-    
-    
-  </entry>
-  
-  <entry>
     <title>数学建模协作方法论</title>
     <link href="https://qiangzibro.com/2021/10/11/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1%E5%8D%8F%E4%BD%9C%E6%96%B9%E6%B3%95%E8%AE%BA/"/>
     <id>https://qiangzibro.com/2021/10/11/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1%E5%8D%8F%E4%BD%9C%E6%96%B9%E6%B3%95%E8%AE%BA/</id>
