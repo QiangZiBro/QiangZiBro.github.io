@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qiangzibro.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="作者申明：该文章仅在微信平台授权给公众号Datawhale（ID：Datawhale）首发原创（地址：https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s&#x2F;jXSfMhDG5PdqG9o1jQikcw），其他平台暂无授权。  训练目标检测模型并部署到你的嵌入式设备，让边缘设备长“眼睛”  目标检测的任务是找出图像中所有感兴趣的目标（物体），确定它们的类别和位置，是计算机视觉领域的核心问题之一。目标">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动手实践嵌入式AI第二弹！">
+<meta property="og:url" content="https://qiangzibro.com/2022/01/10/dl-k210/index.html">
+<meta property="og:site_name" content="QiangZiBro的随笔">
+<meta property="og:description" content="作者申明：该文章仅在微信平台授权给公众号Datawhale（ID：Datawhale）首发原创（地址：https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s&#x2F;jXSfMhDG5PdqG9o1jQikcw），其他平台暂无授权。  训练目标检测模型并部署到你的嵌入式设备，让边缘设备长“眼睛”  目标检测的任务是找出图像中所有感兴趣的目标（物体），确定它们的类别和位置，是计算机视觉领域的核心问题之一。目标">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114025714896.png">
+<meta property="og:image" content="https://qiangzibro.com/2022/01/10/dl-k210/dl-k210/fork.png">
+<meta property="og:image" content="https://qiangzibro.com/2022/01/10/dl-k210/dl-k210/fork2.png">
+<meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-202201140044431441.png">
+<meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114020840077.png">
+<meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114021100119.png">
+<meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220113140527110.png">
+<meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114023131465.png">
+<meta property="og:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114023024193.png">
+<meta property="og:image" content="https://qiangzibro.com/2022/01/10/dl-k210/dl-k210/ezgif-7-3253c8af83.gif">
+<meta property="article:published_time" content="2022-01-10T07:57:32.000Z">
+<meta property="article:modified_time" content="2022-02-10T05:30:04.751Z">
+<meta property="article:author" content="QiangZiBro">
+<meta property="article:tag" content="嵌入式">
+<meta property="article:tag" content="深度学习部署">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114025714896.png">
+
+<link rel="canonical" href="https://qiangzibro.com/2022/01/10/dl-k210/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>动手实践嵌入式AI第二弹！ | QiangZiBro的随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="QiangZiBro的随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">QiangZiBro的随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">CS postgraduate/Guitarist</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">8</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">11</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qiangzibro.com/2022/01/10/dl-k210/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="QiangZiBro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="QiangZiBro的随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          动手实践嵌入式AI第二弹！
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-10 15:57:32" itemprop="dateCreated datePublished" datetime="2022-01-10T15:57:32+08:00">2022-01-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-02-10 13:30:04" itemprop="dateModified" datetime="2022-02-10T13:30:04+08:00">2022-02-10</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><font color="green">作者申明：该文章仅在微信平台授权给公众号Datawhale（ID：Datawhale）首发原创（地址：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/jXSfMhDG5PdqG9o1jQikcw%EF%BC%89%EF%BC%8C%E5%85%B6%E4%BB%96%E5%B9%B3%E5%8F%B0%E6%9A%82%E6%97%A0%E6%8E%88%E6%9D%83%E3%80%82">https://mp.weixin.qq.com/s/jXSfMhDG5PdqG9o1jQikcw），其他平台暂无授权。</a></font></p>
+<blockquote>
+<p>训练目标检测模型并部署到你的嵌入式设备，让边缘设备长“眼睛”</p>
+</blockquote>
+<p>目标检测的任务是找出图像中所有感兴趣的目标（物体），确定它们的类别和位置，是计算机视觉领域的核心问题之一。目标检测已应用到诸多领域，比如如安防、无人销售、自动驾驶和军事等。在许多情况下，运行目标检测程序的设备并不是常用的电脑，而是仅包含必要外设的<strong>嵌入式设备</strong>。别看嵌入式设备简陋，但在上面照样能够跑程序，实现我们的想法。设计一个嵌入式AI产品产品，一般会首先考虑成本，在有限的成本内充分利用硬件的性能。因此，不同高低性能的硬件使用场景各不同。</p>
+<span id="more"></span>
+
+<p>上篇我们讲到如何将一个基础CNN分类模型部署到K210芯片上，用来识别数字，如果还没看过，欢迎check这篇[1]文章~本篇是上一篇的延续，本文训练一个手势检测器，并将其部署到嵌入式设备上。</p>
+<p>本文的思维导图如下</p>
+<p><img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114025714896.png" alt="image-20220114025714896"></p>
+<h2 id="数据集准备"><a href="#数据集准备" class="headerlink" title="数据集准备"></a>数据集准备</h2><p>我们使用一个开源数据集平台：<a target="_blank" rel="noopener" href="https://gas.graviti.cn/">https://gas.graviti.cn/</a> ，这个网站汇总了AI开发者常见的公开数据集，针对我们特定任务，只需搜索对应的数据集即可，更方便的一点是，调用其SDK就能直接在线训练。</p>
+<p>a. 打开本文对应数据集链接 <a target="_blank" rel="noopener" href="https://gas.graviti.com/dataset/datawhale/HandPoseforK210">https://gas.graviti.com/dataset/datawhale/HandPoseforK210</a></p>
+<p>b. 右上角注册登录</p>
+<p>c. fork数据集</p>
+<img src="dl-k210/fork.png" alt="image-20210915170201901" style="zoom:67%;" />
+
+<img src="dl-k210/fork2.png" alt="image-20210915170228705" style="zoom:67%;" />
+
+<p>d. 点击网页上方开发者工具，获取使用SDK所需的AccessKey，获取到 AccessKey 后，将其存在项目根目录的<code>gas_key.py</code>里：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">KEY = <span class="string">&quot;&lt;Your-Key&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后即可以通过AccessKey可以上传数据、读取数据、使用数据，灵活对接模型开发和训练，与数据pipeline快速集成。</p>
+<p>e. AccessKey写入后就可以自由读取数据了。读取前可以开启缓存功能，SDK会在读取data后将其自动缓存至指定路径，此处我们设置缓存路径为<code>data</code>文件夹。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> tensorbay <span class="keyword">import</span> GAS</span><br><span class="line"><span class="keyword">from</span> tensorbay.dataset <span class="keyword">import</span> Dataset</span><br><span class="line"></span><br><span class="line">KEY = <span class="string">&#x27;复制你的ACCESSKEY替换&#x27;</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">read_gas_image</span>(<span class="params">data</span>):</span></span><br><span class="line">    <span class="keyword">with</span> data.<span class="built_in">open</span>() <span class="keyword">as</span> fp:</span><br><span class="line">        image = Image.<span class="built_in">open</span>(fp)</span><br><span class="line">        image.load()</span><br><span class="line">    <span class="keyword">return</span> np.array(image)</span><br><span class="line"></span><br><span class="line">gas = GAS(KEY)</span><br><span class="line">dataset = Dataset(<span class="string">&quot;HandPoseforK210&quot;</span>, gas)</span><br><span class="line">dataset.enable_cache(<span class="string">&quot;data&quot;</span>)</span><br><span class="line">segments = dataset.keys()</span><br><span class="line">segment = dataset[<span class="string">&quot;train&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> data <span class="keyword">in</span> segment:</span><br><span class="line">    <span class="comment"># 获取的Numpy格式的图片数据</span></span><br><span class="line">    image = read_gas_image(data)</span><br><span class="line">    <span class="comment"># 标签数据</span></span><br><span class="line">    <span class="keyword">for</span> label_box2d <span class="keyword">in</span> data.label.box2d:</span><br><span class="line">        xmin = label_box2d.xmin</span><br><span class="line">        ymin = label_box2d.ymin</span><br><span class="line">        xmax = label_box2d.xmax</span><br><span class="line">        ymax = label_box2d.ymax</span><br><span class="line">        box2d_category = label_box2d.category</span><br></pre></td></tr></table></figure>
+
+<h2 id="目标检测模型训练"><a href="#目标检测模型训练" class="headerlink" title="目标检测模型训练"></a>目标检测模型训练</h2><h3 id="方法1-使用本地GPU进行训练"><a href="#方法1-使用本地GPU进行训练" class="headerlink" title="方法1 使用本地GPU进行训练"></a>方法1 使用本地GPU进行训练</h3><p><strong>第一步：</strong>拉取docker镜像</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 镜像名称</span></span><br><span class="line">IMAGE=<span class="string">&quot;daocloud.io/neucrack/tensorflow-gpu-py3-jupyterlab&quot;</span></span><br><span class="line"><span class="comment"># 拉取深度学习平台镜像</span></span><br><span class="line">docker pull <span class="variable">$IMAGE</span></span><br><span class="line"><span class="comment"># 测试，当日志出现gpu=True表示能成功使用GPU</span></span><br><span class="line">docker run --gpus all -it --rm <span class="variable">$IMAGE</span> python -c <span class="string">&quot;import tensorflow as tf; print(&#x27;-----version:&#123;&#125;, gpu:&#123;&#125;, 1+2=&#123;&#125;&#x27;.format(tf.__version__, tf.test.is_gpu_available(), tf.add(1, 2).numpy()) );&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>第二步：</strong>拉取本文代码，配置NNCASE，开启docker容器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/QiangZiBro/pytorch-k210</span><br><span class="line"><span class="built_in">cd</span> pytorch-k210/handpose_detection/maix_train</span><br><span class="line"><span class="comment"># 配置NNCASE</span></span><br><span class="line">mkdir -p tools/ncc/ncc_v0.2 &amp;&amp; <span class="built_in">cd</span> tools/ncc/ncc_v0.2</span><br><span class="line">wget https://github.com/kendryte/nncase/releases/download/v0.2.0-beta4/ncc_linux_x86_64.tar.xz</span><br><span class="line">tar xvf ncc-linux-x86_64.tar.xz</span><br><span class="line"><span class="built_in">cd</span> ../../</span><br></pre></td></tr></table></figure>
+
+<p>上面的NNCASE只需要下载、解压即可，我们接下来使用Docker构建一个Linux虚拟容器环境，如下面命令开启环境：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开启容器</span></span><br><span class="line">docker run --gpus all --name jupyterlab-gpu -it -p 8889:8889 -e USER_NAME=<span class="variable">$USER</span> -e USER_ID=`id -u <span class="variable">$USER</span>` -e GROUP_NAME=`id -gn <span class="variable">$USER</span>` -e GROUP_ID=`id -g <span class="variable">$USER</span>` -v `<span class="built_in">pwd</span>`:/tf <span class="variable">$IMAGE</span></span><br></pre></td></tr></table></figure>
+
+<p>开启容器后，有两种操作方式供选择</p>
+<ul>
+<li><p>第一种，使用jupyter-notebook运行</p>
+</li>
+<li><p>第二种，直接进入容器内部</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it jupyterlab-gpu /bin/bash</span><br><span class="line"><span class="comment"># 在容器内部，建议切换到普通用户运行</span></span><br><span class="line">su - yourname</span><br><span class="line"><span class="built_in">cd</span> /tf</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>这里笔者选用第二种方式。创建容器时，Docker自动在镜像里创建了一个和本机用户名相同的用户。在容器里运行程序时，强烈建议切换成普通用户运行，否则后期遇到权限问题还需要手动改权限。</p>
+<p><strong>第三步：</strong>开启训练，使用Yolo V2算法数据集进行训练，具体操作方法为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装必备的包</span></span><br><span class="line">pip3 install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /handpose_detection/maix_train</span><br><span class="line"><span class="comment"># 初始化</span></span><br><span class="line">python3 train.py init</span><br><span class="line"><span class="comment"># 开始训练</span></span><br><span class="line">python3 train.py -t detector -d datasets/game train</span><br></pre></td></tr></table></figure>
+
+<p>运行上述命令即使用maix_train工具箱开始训练，这个程序能一键完成训练、参数转换、量化等功能</p>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-202201140044431441.png" alt="image-20220114004443144" style="zoom: 25%;" />
+
+<p>使用100个Epoch进行训练，得到的结果生成在out文件下。</p>
+<h3 id="方法2-使用在线GPU进行训练"><a href="#方法2-使用在线GPU进行训练" class="headerlink" title="方法2 使用在线GPU进行训练"></a>方法2 使用在线GPU进行训练</h3><p>运行时默认调用GPU训练，如果没有GPU则使用CPU，训练时间相对CPU较慢。没有GPU的小伙伴也不用担心，可以直接将数据集上传到maixhub进行在线训练。这里的限制是需要有一块K210开发板，并且数据集大小在20M以内。下面简要介绍方法：</p>
+<p><strong>第一步，</strong>在格物汰数据集平台上，下载本文所用到的数据集</p>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114020840077.png" alt="image-20220114020840077" style="zoom:33%;" />
+
+
+
+<p><strong>第二步，</strong>打开maixhub官网，<a target="_blank" rel="noopener" href="https://www.maixhub.com/ModelTraining%EF%BC%8C%E6%B3%A8%E5%86%8C%E3%80%81%E7%99%BB%E5%BD%95%EF%BC%8C%E6%A0%B9%E6%8D%AE%E5%AE%98%E7%BD%91%E6%8F%90%E7%A4%BA%E8%8E%B7%E5%BE%97%E6%9C%BA%E5%99%A8%E7%A0%81">https://www.maixhub.com/ModelTraining，注册、登录，根据官网提示获得机器码</a></p>
+<p><strong>第三步，</strong>上传刚才下载的数据集，开始训练</p>
+<p>大概二十分钟后，模型就训练好了，点击Download下载训练的模型。这里的结果和上面的out文件夹下的压缩文件一样。</p>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114021100119.png" alt="image-20220114021100119" style="zoom: 33%;" />
+
+
+
+<h2 id="嵌入式设备部署"><a href="#嵌入式设备部署" class="headerlink" title="嵌入式设备部署"></a>嵌入式设备部署</h2><h3 id="开发环境准备"><a href="#开发环境准备" class="headerlink" title="开发环境准备"></a>开发环境准备</h3><p>使用kflash作为烧录工具，这个工具图形化和命令行工具都有，选取我们需要的即可</p>
+<p>代码编写方面，使用VSCode编辑Python代码。模型训练好的Python代码还需要微调，这里笔者已经调试好公布在托管的仓库里，大家可以直接拷贝到内存卡，或者串口连接使用。下面介绍如何将训练的模型部署到最终的硬件设备中</p>
+<h4 id="烧录Micropython固件"><a href="#烧录Micropython固件" class="headerlink" title="烧录Micropython固件"></a>烧录Micropython固件</h4><p><strong>第一步</strong> 下载Micropython固件 到<a target="_blank" rel="noopener" href="https://dl.sipeed.com/shareURL/MAIX/MaixPy/release/master">https://dl.sipeed.com/shareURL/MAIX/MaixPy/release/master</a> 下载一个bin文件，这里笔者使用的是<code>minimum_with_kmodel_v4_support</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://dl.sipeed.com/fileList/MAIX/MaixPy/release/master/maixpy_v0<span class="number">.6</span><span class="number">.2_72</span>_g22a8555b5/maixpy_v0<span class="number">.6</span><span class="number">.2_72</span>_g22a8555b5_minimum_with_kmodel_v4_support.<span class="built_in">bin</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>第二步</strong> 查看K210的串口号，以笔者使用的MacOS为例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ls /dev/cu.usbserial-*</span><br><span class="line"><span class="comment"># /dev/cu.usbserial-14330</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>第三步</strong> 烧录</p>
+<p>使用命令行进行烧录示例</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kflash  -p /dev/cu.usbserial-<span class="number">14330</span> -b <span class="number">115200</span> -t maixpy_v0<span class="number">.6</span><span class="number">.2_72</span>_g22a8555b5_minimum_with_kmodel_v4_support.<span class="built_in">bin</span></span><br></pre></td></tr></table></figure>
+
+<p>使用kflash图形界面的烧录示例</p>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220113140527110.png" alt="image-20220113140527110" style="zoom: 33%;" />
+
+<h3 id="烧录目标检测模型参数"><a href="#烧录目标检测模型参数" class="headerlink" title="烧录目标检测模型参数"></a>烧录目标检测模型参数</h3><p>有两种方式将训练模型参数部署到嵌入式设备上： </p>
+<ul>
+<li>使用程序烧录器直接烧录到flash中的一片地址，在程序中直接加载这块地址指向的内存</li>
+<li>将模型参数拷贝在SD卡上，在程序中从SD卡加载</li>
+</ul>
+<p>对于第一种方法，我们一般将模型参数烧录在以0x30000为开始的内存上，结尾不需要制定，程序低层会自己判断结束点。因此，在烧录时，只需要在kflash GUI的0x00000改为0x30000即可。当然，你也可以使用命令行烧录，同样的效果。</p>
+<p>对于第二种方法，直接将上面训练好的所用文件拷贝到SD卡，再插入K210开发板即可。</p>
+<h3 id="模型推理脚本"><a href="#模型推理脚本" class="headerlink" title="模型推理脚本"></a>模型推理脚本</h3><p>Micropython固件和模型参数烧录成功后，使用下面脚本便可以加载脚本，进行检测了。建议先打开串口，将程序复制过去运行，观察运行结果，调试到正常运行后再放置到SD卡中</p>
+<p><strong>第一步：</strong>复制下面代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># object detector boot.py</span></span><br><span class="line"><span class="comment"># generated by maixhub.com</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sensor, image, lcd, time</span><br><span class="line"><span class="keyword">import</span> KPU <span class="keyword">as</span> kpu</span><br><span class="line"><span class="keyword">import</span> gc, sys</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lcd_show_except</span>(<span class="params">e</span>):</span></span><br><span class="line">    <span class="keyword">import</span> uio</span><br><span class="line">    err_str = uio.StringIO()</span><br><span class="line">    sys.print_exception(e, err_str)</span><br><span class="line">    err_str = err_str.getvalue()</span><br><span class="line">    img = image.Image(size=(<span class="number">240</span>,<span class="number">240</span>))</span><br><span class="line">    img.draw_string(<span class="number">0</span>, <span class="number">10</span>, err_str, scale=<span class="number">1</span>, color=(<span class="number">0xff</span>,<span class="number">0x00</span>,<span class="number">0x00</span>))</span><br><span class="line">    lcd.display(img)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>(<span class="params">anchors, labels = <span class="literal">None</span>, model_addr=<span class="string">&quot;/sd/m.kmodel&quot;</span>, sensor_window=(<span class="params"><span class="number">240</span>,<span class="number">240</span></span>), lcd_rotation=<span class="number">0</span>, sensor_hmirror=<span class="literal">False</span>, sensor_vflip=<span class="literal">False</span></span>):</span></span><br><span class="line">    sensor.reset()</span><br><span class="line">    sensor.set_pixformat(sensor.RGB565)</span><br><span class="line">    sensor.set_framesize(sensor.QVGA)</span><br><span class="line">    sensor.set_windowing(sensor_window)</span><br><span class="line">    sensor.set_hmirror(sensor_hmirror)</span><br><span class="line">    sensor.set_vflip(sensor_vflip)</span><br><span class="line">    sensor.run(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    lcd.init(<span class="built_in">type</span>=<span class="number">1</span>, invert=<span class="literal">True</span>)</span><br><span class="line">    lcd.rotation(lcd_rotation)</span><br><span class="line">    lcd.clear(lcd.WHITE)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> labels:</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;labels.txt&#x27;</span>,<span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            <span class="built_in">exec</span>(f.read())</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> labels:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;no labels.txt&quot;</span>)</span><br><span class="line">        img = image.Image(size=(<span class="number">320</span>, <span class="number">240</span>))</span><br><span class="line">        img.draw_string(<span class="number">90</span>, <span class="number">110</span>, <span class="string">&quot;no labels.txt&quot;</span>, color=(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>), scale=<span class="number">2</span>)</span><br><span class="line">        lcd.display(img)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        img = image.Image(<span class="string">&quot;startup.jpg&quot;</span>)</span><br><span class="line">        lcd.display(img)</span><br><span class="line">    <span class="keyword">except</span> Exception:</span><br><span class="line">        img = image.Image(size=(<span class="number">320</span>, <span class="number">240</span>))</span><br><span class="line">        img.draw_string(<span class="number">90</span>, <span class="number">110</span>, <span class="string">&quot;loading model...&quot;</span>, color=(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>), scale=<span class="number">2</span>)</span><br><span class="line">        lcd.display(img)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        task = <span class="literal">None</span></span><br><span class="line">        task = kpu.load(model_addr)</span><br><span class="line">        kpu.init_yolo2(task, <span class="number">0.5</span>, <span class="number">0.3</span>, <span class="number">5</span>, anchors) <span class="comment"># threshold:[0,1], nms_value: [0, 1]</span></span><br><span class="line">        <span class="keyword">while</span>(<span class="literal">True</span>):</span><br><span class="line">            img = sensor.snapshot()</span><br><span class="line">            t = time.ticks_ms()</span><br><span class="line">            objects = kpu.run_yolo2(task, img)</span><br><span class="line">            t = time.ticks_ms() - t</span><br><span class="line">            <span class="keyword">if</span> objects:</span><br><span class="line">                <span class="keyword">for</span> obj <span class="keyword">in</span> objects:</span><br><span class="line">                    pos = obj.rect()</span><br><span class="line">                    img.draw_rectangle(pos)</span><br><span class="line">                    img.draw_string(pos[<span class="number">0</span>], pos[<span class="number">1</span>], <span class="string">&quot;%s : %.2f&quot;</span> %(labels[obj.classid()], obj.value()), scale=<span class="number">2</span>, color=(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>))</span><br><span class="line">            img.draw_string(<span class="number">0</span>, <span class="number">200</span>, <span class="string">&quot;t:%dms&quot;</span> %(t), scale=<span class="number">2</span>, color=(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>))</span><br><span class="line">            lcd.display(img)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">raise</span> e</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> task <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            kpu.deinit(task)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        labels = [<span class="string">&quot;raised_fist&quot;</span>, <span class="string">&quot;victory_hand&quot;</span>, <span class="string">&quot;hand_with_fingers_splayed&quot;</span>]</span><br><span class="line">        anchors = [<span class="number">3.96875</span>, <span class="number">8.8125</span>, <span class="number">3.25</span>, <span class="number">7.5</span>, <span class="number">4.4375</span>, <span class="number">6.4375</span>, <span class="number">3.3125</span>, <span class="number">5.15625</span>, <span class="number">6.125</span>, <span class="number">8.25</span>]</span><br><span class="line">        <span class="comment">#main(anchors = anchors, labels=labels, model_addr=0x300000, lcd_rotation=0)</span></span><br><span class="line">        main(anchors = anchors, labels=labels, model_addr=<span class="string">&quot;/sd/m.kmodel&quot;</span>)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        sys.print_exception(e)</span><br><span class="line">        lcd_show_except(e)</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        gc.collect()</span><br></pre></td></tr></table></figure>
+
+<p>上面代码有几点注意： </p>
+<ul>
+<li>使用雅博的K210开发板需要在LCD初始化将invert参数置为True，即<code>lcd.init(type=1, invert=True)</code></li>
+<li>main函数有两种运行方式，分别表示从flash加载模型和从SD卡加载模型</li>
+</ul>
+<p><strong>第二步：</strong>打开终端，Mac上可以使用<code>screen</code>和串口进行通信</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">screen /dev/cu.usbserial-14340 115200</span><br><span class="line"><span class="comment"># 串口号不一定一样</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>常用功能</p>
+<p>退出： 先ctrl+a，再按k键，按y确认</p>
+</blockquote>
+<p>如果成功出现下面结果</p>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114023131465.png" alt="image-20220114023131465" style="zoom:33%;" />
+
+<p><strong>第三步：</strong>拷贝程序通过串口进行交互式运行</p>
+<p>首先按Ctrl+E，进入拷贝模式，出现下面结果</p>
+<img src="https://gitee.com/qiangzibro/uPic/raw/master/uPic/image-20220114023024193.png" alt="image-20220114023024193" style="zoom: 50%;" />
+
+<p>复制后Ctrl+D即可开始运行，程序运行无误后，拷贝全部文件到SD卡。程序运行成功后，效果如下</p>
+<p><img src="dl-k210/ezgif-7-3253c8af83.gif" alt="效果图"></p>
+<h2 id="总结和思考"><a href="#总结和思考" class="headerlink" title="总结和思考"></a>总结和思考</h2><p>本文提供了一个从图像深度学习算法训练的开始，最终将其部署在嵌入式设备K210上。嵌入式AI涉及到的知识广泛，光其中的目标检测和嵌入式编程都可各写一本书。如果你是一个初学者，不要被其中深厚的知识吓到，我们可以“边打仗边学习”，在实践的过程学习。</p>
+<p>下面提供几个小问题，以供课后思考：</p>
+<ul>
+<li>有哪些可能的方法能够提升识别的准确率？</li>
+<li>能否从数据本身出发，提高识别的性能？</li>
+<li>本文的神经网络参数的参数转换流程是怎样的？</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>[ 1 ] : <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/oTLPzmlChxoXDziurl38-Q">https://mp.weixin.qq.com/s/oTLPzmlChxoXDziurl38-Q</a></p>
+<p>[ 2 ] : <a target="_blank" rel="noopener" href="https://www.maixhub.com/">https://www.maixhub.com/</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/QiangZiBro">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/QiangZiBro">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/" rel="tag"># 嵌入式</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E9%83%A8%E7%BD%B2/" rel="tag"># 深度学习部署</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/01/cvaio/" rel="prev" title="嵌入式视觉AI实践——从训练到部署">
+      <i class="fa fa-chevron-left"></i> 嵌入式视觉AI实践——从训练到部署
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%9B%86%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">数据集准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83"><span class="nav-number">2.</span> <span class="nav-text">目标检测模型训练</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%951-%E4%BD%BF%E7%94%A8%E6%9C%AC%E5%9C%B0GPU%E8%BF%9B%E8%A1%8C%E8%AE%AD%E7%BB%83"><span class="nav-number">2.1.</span> <span class="nav-text">方法1 使用本地GPU进行训练</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%952-%E4%BD%BF%E7%94%A8%E5%9C%A8%E7%BA%BFGPU%E8%BF%9B%E8%A1%8C%E8%AE%AD%E7%BB%83"><span class="nav-number">2.2.</span> <span class="nav-text">方法2 使用在线GPU进行训练</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E8%AE%BE%E5%A4%87%E9%83%A8%E7%BD%B2"><span class="nav-number">3.</span> <span class="nav-text">嵌入式设备部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">3.1.</span> <span class="nav-text">开发环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%83%A7%E5%BD%95Micropython%E5%9B%BA%E4%BB%B6"><span class="nav-number">3.1.1.</span> <span class="nav-text">烧录Micropython固件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%83%A7%E5%BD%95%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-number">3.2.</span> <span class="nav-text">烧录目标检测模型参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E8%84%9A%E6%9C%AC"><span class="nav-number">3.3.</span> <span class="nav-text">模型推理脚本</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%E5%92%8C%E6%80%9D%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">总结和思考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QiangZiBro"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">QiangZiBro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/QiangZiBro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;QiangZiBro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/QiangZiBro" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;QiangZiBro" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/30707967" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;30707967" rel="noopener" target="_blank"><i class="fas fa-globe-asia fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiangZiBro</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '8464dde13ead68fcda90',
+      clientSecret: 'bb13eeb4abcd38d333a83f12c2991ae22e3cd06a',
+      repo        : 'qiangzibro.github.io',
+      owner       : 'QiangZiBro',
+      admin       : ['QiangZiBro'],
+      id          : '03beabfbdaf2def208925d834802ee9d',
+        language: 'zh-CN',
+      distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
