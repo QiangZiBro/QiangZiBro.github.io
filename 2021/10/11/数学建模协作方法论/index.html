@@ -124,6 +124,11 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">11</span></a>
+
+  </li>
         <li class="menu-item menu-item-about">
 
     <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
@@ -132,11 +137,6 @@
         <li class="menu-item menu-item-tags">
 
     <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">8</span></a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">11</span></a>
 
   </li>
   </ul>
@@ -214,8 +214,11 @@
       
         <p>数学建模比赛是本、硕学生参加频次较高一个比赛，其奖项也具有一定的含金量。笔者在研究生期间参加过两次华为杯数模，先后得到二等奖和一等奖。本文会结合笔者自身经验，并从一个开发者的角度，分享该以怎样的工作流来提高团队合作的效率。</p>
 <span id="more"></span>
+
+
+
 <blockquote>
-<p>本文同步发表公众号：QiangZiBro和我的博客https://qiangzibro.com，欢迎关注！</p>
+<p>本文同步发表公众号：QiangZiBro和我的博客<a target="_blank" rel="noopener" href="https://qiangzibro.com,欢迎关注!/">https://qiangzibro.com，欢迎关注！</a></p>
 </blockquote>
 <p>简而言之，笔者推荐的数模合作方式概述为以下四点</p>
 <ul>
@@ -236,6 +239,7 @@
 <p>使用Latex还有一个好处是，便于做版本控制。不像Word，Latex文件本身是纯文本，能够轻松地做版本控制。</p>
 <p>关于数学建模的Latex模板，网上有很多，以2020研究生数学建模为例[2]</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/latexstudio/GMCMthesis </span><br><span class="line"><span class="built_in">cd</span> GMCMthesis </span><br></pre></td></tr></table></figure>
+
 <p>笔者在2020年数学建模用的就是这个模板，在Windows下可以直接使用，在Mac下的VSCode编译时，<strong>自动</strong>提醒我下载了两种字体后，才能使用。</p>
 <p><strong>3. 使用Git做版本控制</strong></p>
 <p>为什么要做版本控制？讲个恐怖故事：小明在比赛结束前一天将辛辛苦苦写的论文误删除了，并且是不可恢复的删除，于是小明顶着崩溃的心情在最后的时间又重写了一篇出来。</p>
@@ -245,33 +249,47 @@
 <p>使用Git多分支管理，共同协作一个私有的Github/Gitee仓库。主分支（master或者main分支）作为稳定的最终版本，每人在初始点的模板引出一个分支，并推到自己的分支上，由一人做最后的分支合并。</p>
 <p>具体流程如下，比如我是队长，同时要写文章，用下列命令，从模板新引出一个分支出来</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b dev_captain</span><br></pre></td></tr></table></figure>
+
 <p>队员小明也引出一个分支</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b dev_ming</span><br></pre></td></tr></table></figure>
+
 <p>假设模板如下</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">## chapter 1</span><br><span class="line">## chapter 2</span><br><span class="line">## chapter 3</span><br><span class="line">## reference</span><br></pre></td></tr></table></figure>
+
 <p>在分支<code>dev_captain</code>上，我对第1，3章节做了大量修改后，并push到自己的远程分支</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">## chapter 1</span><br><span class="line">大量修改 captain</span><br><span class="line">## chapter 2</span><br><span class="line">## chapter 3</span><br><span class="line">大量修改 captain</span><br><span class="line">## reference</span><br></pre></td></tr></table></figure>
+
 <p>在分支<code>dev_ming</code>上，小明也对第2章节进行大量修改</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">## chapter 1</span><br><span class="line">## chapter 2</span><br><span class="line">小明 大量内容</span><br><span class="line">## chapter 3</span><br><span class="line">## reference</span><br></pre></td></tr></table></figure>
+
 <p>将这两份内容直接合并到主分支非常简单，因为我们只在自己的对应章节进行了更新，Git能够自动将其合并成一个整体。例如，分支管理者进行操作如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git fetch -a <span class="comment"># 从远程更新</span></span><br><span class="line">git checkout master</span><br><span class="line">git merge dev_captain</span><br><span class="line">git merge dev_ming</span><br></pre></td></tr></table></figure>
+
 <p>再次看我们点的论文，也就变成了</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">## chapter 1</span><br><span class="line">大量修改 captain</span><br><span class="line">## chapter 2</span><br><span class="line">小明 大量内容</span><br><span class="line">## chapter 3</span><br><span class="line">大量修改 captain</span><br><span class="line">## reference</span><br></pre></td></tr></table></figure>
+
 <p><strong>分支冲突</strong></p>
 <p>遇到分支冲突不要怕，首先要明白为什么会有分支冲突：两个分支版本在同一块区域进行了不同的改动，Git不能确定到底要保留哪块内容，于是要求你改完后再次进行提交。还是上面的例子，我在<code>reference</code>章节下添加了两个参考</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">## reference</span><br><span class="line">- refer 1</span><br><span class="line">- refer 2</span><br></pre></td></tr></table></figure>
+
 <p>小明在<code>reference</code>章节下也添加了两个参考</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">## reference</span><br><span class="line">- refer 1</span><br><span class="line">- refer 3</span><br></pre></td></tr></table></figure>
+
 <p>将两个分支合并到主分支时，出现</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Auto-merging example.txt</span><br><span class="line">CONFLICT (content): Merge conflict in example.txt</span><br><span class="line">Automatic merge failed; fix conflicts and then commit the result.</span><br></pre></td></tr></table></figure>
+
 <p>这意味着产生了冲突，打开这个文件</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">## reference</span><br><span class="line">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span><br><span class="line">- refer 1 </span><br><span class="line">- refer 3</span><br><span class="line">=======</span><br><span class="line">- refer 1</span><br><span class="line">- refer 2</span><br><span class="line">&gt;&gt;&gt;&gt;&gt;&gt;&gt; dev_captain</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>可以看到<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code>和<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; dev1</code>中间包围的部分就是冲突内容，<code>=======</code>上下是各自分支的内容。我们将这个区域的内容改成我们想要的样子，比如说想要1、2、3，那就只需要删掉重复的<code>- refer 1</code></p>
+
+<p>可以看到<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code>和<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; dev1</code>中间包围的部分就是冲突内容，<code>=======</code>上下是各自分支的内容。我们将这个区域的内容改成我们想要的样子，比如说想要1、2、3，那就只需要删掉重复的<code>- refer 1 </code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span><br><span class="line">- refer 1 </span><br><span class="line">- refer 3</span><br><span class="line">=======</span><br><span class="line">- refer 2</span><br><span class="line">&gt;&gt;&gt;&gt;&gt;&gt;&gt; dev_captain</span><br></pre></td></tr></table></figure>
+
 <p>再微调一下，并删掉<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code>，<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; dev_captain</code>和<code>=======</code>，如下</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- refer 1 </span><br><span class="line">- refer 2</span><br><span class="line">- refer 3</span><br></pre></td></tr></table></figure>
+
 <p>再次提交</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;解决了参考文献的冲突&quot;</span></span><br><span class="line">git push origin main</span><br></pre></td></tr></table></figure>
+
 <p>至此，分支冲突解决。</p>
 <blockquote>
 <p><strong>课后作业：</strong>多人合作有时候会产生合并冲突，你会采取怎样约束，让冲突少产生、或者不产生？</p>
@@ -282,10 +300,9 @@
 </ul>
 </blockquote>
 <p>也许没有完美的方法，但一定有更适合你们的方法，希望本文能给即将参加数学建模的你们带来帮助，祝好运✨</p>
-<h2 id="参考">参考</h2>
-<p>[ 1 ] : https://mmcheng.net/writing/</p>
-<p>[ 2 ] : https://github.com/latexstudio/GMCMthesis</p>
-<p>[ 3 ] : https://zhuanlan.zhihu.com/p/38178015</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>[ 1 ] : <a target="_blank" rel="noopener" href="https://mmcheng.net/writing/">https://mmcheng.net/writing/</a></p>
+<p>[ 2 ] : <a target="_blank" rel="noopener" href="https://github.com/latexstudio/GMCMthesis">https://github.com/latexstudio/GMCMthesis</a></p>
+<p>[ 3 ] : <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/38178015">https://zhuanlan.zhihu.com/p/38178015</a></p>
 
     </div>
 
@@ -326,16 +343,6 @@
             </span>
 
             <span class="label">WeChat</span>
-          </a>
-        </div>
-
-        <div class="social-item">
-          <a target="_blank" class="social-link" href="/atom.xml">
-            <span class="icon">
-              <i class="fa fa-rss"></i>
-            </span>
-
-            <span class="label">RSS</span>
           </a>
         </div>
     </div>
@@ -552,7 +559,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       owner       : 'QiangZiBro',
       admin       : ['QiangZiBro'],
       id          : 'd26a224237b9f556de94232f4d7dfcf0',
-        language: 'zh-CN',
+        language: '',
       distractionFreeMode: false
     });
     gitalk.render('gitalk-container');
