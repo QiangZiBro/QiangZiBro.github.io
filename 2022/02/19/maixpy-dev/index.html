@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"qiangzibro.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="简介 笔者最近初学K210上的视觉处理模块，但发现K210 C SDK的资料比较少。后来发现了开源项目MaxiPy，它是个学习K210 C SDK极佳例子，遂直接读其源码，不仅收获到底层SDK使用方法，还了解到用C写Python模块的方法。 在硬件上跑一行Python语句，底层其实都是调用C代码。那么C底层和Python之间到底怎样对应起来呢？此文告诉你如何基于MaxiPy这个项目，用C语言编写P">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何通过命令行控制你的嵌入式硬件">
+<meta property="og:url" content="https://qiangzibro.com/2022/02/19/maixpy-dev/index.html">
+<meta property="og:site_name" content="QiangZiBro的随笔">
+<meta property="og:description" content="简介 笔者最近初学K210上的视觉处理模块，但发现K210 C SDK的资料比较少。后来发现了开源项目MaxiPy，它是个学习K210 C SDK极佳例子，遂直接读其源码，不仅收获到底层SDK使用方法，还了解到用C写Python模块的方法。 在硬件上跑一行Python语句，底层其实都是调用C代码。那么C底层和Python之间到底怎样对应起来呢？此文告诉你如何基于MaxiPy这个项目，用C语言编写P">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-02-19T04:53:05.000Z">
+<meta property="article:modified_time" content="2022-02-19T06:42:49.444Z">
+<meta property="article:author" content="QiangZiBro">
+<meta property="article:tag" content="k210">
+<meta property="article:tag" content="Python底层">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://qiangzibro.com/2022/02/19/maixpy-dev/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>如何通过命令行控制你的嵌入式硬件 | QiangZiBro的随笔</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="QiangZiBro的随笔" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">QiangZiBro的随笔</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">CS postgraduate/Guitarist</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">12</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">10</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://qiangzibro.com/2022/02/19/maixpy-dev/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="QiangZiBro">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="QiangZiBro的随笔">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何通过命令行控制你的嵌入式硬件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-02-19 12:53:05 / 修改时间：14:42:49" itemprop="dateCreated datePublished" datetime="2022-02-19T12:53:05+08:00">2022-02-19</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="简介">简介</h2>
+<p>笔者最近初学K210上的视觉处理模块，但发现K210 C SDK的资料比较少。后来发现了开源项目MaxiPy，它是个学习K210 C SDK极佳例子，遂直接读其源码，不仅收获到底层SDK使用方法，还了解到用C写Python模块的方法。</p>
+<p>在硬件上跑一行Python语句，底层其实都是调用C代码。那么C底层和Python之间到底怎样对应起来呢？此文告诉你如何基于MaxiPy这个项目，用C语言编写Python底层，按本文步骤操作下来，开发Python底层模块就像填空题一样简单！</p>
+<span id="more"></span>
+<h2 id="学习目标">学习目标</h2>
+<ul>
+<li>创建一个叫做<code>my_lib</code>的Python模块</li>
+<li>在<code>my_lib</code> 中创建一个C函数，使得在Python程序中调用<code>hello</code>时，能打印字符串<code>hello world</code></li>
+<li>创建一个类<code>A</code>，实现一个类方法<code>A.add</code>进行两数相加</li>
+</ul>
+<h2 id="加入你自己的函数">加入你自己的函数</h2>
+<p>我们希望实现以下功能：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from my_lib import hello</span><br><span class="line">&gt;&gt;&gt; hello()</span><br><span class="line">hello world from my_lib</span><br></pre></td></tr></table></figure>
+<p>具体步骤如下</p>
+<ol type="1">
+<li><p>假设编译环境已经配置好，用VSCode从打开Maxipy工程根目录，或者终端进入到Maxipy工程根目录，直接vim编辑操作</p></li>
+<li><p>创建<code>my_lib</code> 模块所在的文件夹</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p components/micropython/port/src/my_lib</span><br></pre></td></tr></table></figure></li>
+<li><p>因为<code>my_lib</code> 和<code>hello</code> 是我们需要在Python中创建的<strong>新的</strong>模块名和函数名， 在<code>components/micropython/core/py/makeqstrdata.py</code> 中的<code>static_qstr_list</code> 中，加入这两个名字：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">static_qstr_list = [</span><br><span class="line">		<span class="string">&quot;hello&quot;</span>, <span class="comment"># Python底层函数名</span></span><br><span class="line">		<span class="string">&quot;my_lib&quot;</span>, <span class="comment"># Python低层模块名</span></span><br><span class="line">    ...</span><br><span class="line">		]</span><br></pre></td></tr></table></figure>
+<p>在这个脚本加入这两个名字后，在最后一步的<code>python project.py rebuild</code> 会在编译时自动调用这个脚本，创建一个头文件<code>qstrdefs.generated.h</code>，C源代码需要用到这个文件的定义。也就是说，<code>makeqstrdata.py</code> 这个脚本文件帮我们节省了C的头文件定义工作。</p></li>
+<li><p>创建C源代码<code>components/micropython/port/src/my_lib/my_lib.c</code> ，这里大部分比较固定，完整源代码+注释如下，从第一步看到第六步即可。其中大部分都比较固定，我们需要新增一个函数，更改1.1，1.2和3.1即可</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;obj.h&quot;</span></span></span><br><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//        I 模块内的函数定义</span></span><br><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">// 1.1 定义业务函数</span></span><br><span class="line"><span class="comment">// 注1：my_lib_func_hello函数需要返回一个值mp_const_none，</span></span><br><span class="line"><span class="comment">// 注2：不能返回NULL，因为NULL不是一个(MaixPy)对象，这个返回值</span></span><br><span class="line"><span class="comment">//     也就是MaixPy层面调用hello()函数时的返回值</span></span><br><span class="line"><span class="function">STATIC <span class="keyword">mp_obj_t</span> <span class="title">my_lib_func_hello</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    mp_printf(&amp;mp_plat_print, <span class="string">&quot;hello from my_lib\\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> mp_const_none;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 1.2 将刚才写的函数转换为MaixPy对象</span></span><br><span class="line"><span class="comment">// 注1：MP_DEFINE_CONST_FUN_OBJ_0宏定义将my_lib_func_hello这个C函数定义为</span></span><br><span class="line"><span class="comment">// my_lib_func_hello_obj这个对象</span></span><br><span class="line"><span class="comment">// 注2：除了MP_DEFINE_CONST_FUN_OBJ_0即没有参数之外，还有1/2/3/n个参数，</span></span><br><span class="line"><span class="comment">// 以及带关键字参数，这些请翻阅源码举一反三学习</span></span><br><span class="line">MP_DEFINE_CONST_FUN_OBJ_0(my_lib_func_hello_obj, my_lib_func_hello);</span><br><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br><span class="line"></span><br><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//        II 模块内的类定义</span></span><br><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">// 定义对象 A</span></span><br><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br><span class="line"></span><br><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//        III my_lib模块注册</span></span><br><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">// 3.1 定义该模块包含的类和函数，将上面自己定义的类、函数都添加到下表</span></span><br><span class="line"><span class="comment">//    C语言层面定义一个结构体的数组，将名字（key）和对象（value）关系起来</span></span><br><span class="line">STATIC <span class="keyword">const</span> <span class="keyword">mp_map_elem_t</span> my_lib_globals_table[] = &#123;</span><br><span class="line">    &#123;MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR_my_lib)&#125;,</span><br><span class="line"></span><br><span class="line">    &#123;MP_ROM_QSTR(MP_QSTR_A),  MP_ROM_PTR(&amp;my_lib_A) &#125;,</span><br><span class="line">    &#123;MP_OBJ_NEW_QSTR(MP_QSTR_hello), (<span class="keyword">mp_obj_t</span>)&amp;my_lib_func_hello_obj&#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3.2 C dict转MaixPy dict 【固定不动】</span></span><br><span class="line"><span class="comment">// 解释：使用MP_DEFINE_CONST_DICT宏定义将my_lib_globals_table这个键值对</span></span><br><span class="line"><span class="comment">// 变成MaixPy层面能理解的dict对象（mp_map_elem_t只是C层面能理解）</span></span><br><span class="line"><span class="comment">// my_lib_globals_dict,这个对象也被上一步中定义模块的时候使用</span></span><br><span class="line"><span class="function">STATIC <span class="title">MP_DEFINE_CONST_DICT</span><span class="params">( my_lib_globals_dict, my_lib_globals_table)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3.3 【固定不动】</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">mp_obj_module_t</span> my_lib_module = &#123;</span><br><span class="line">    .base = &#123;&amp;mp_type_module&#125;,</span><br><span class="line">    .globals = (<span class="keyword">mp_obj_dict_t</span> *)&amp;my_lib_globals_dict,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3.4 【固定不动】</span></span><br><span class="line"><span class="comment">// 注册当前模块，是否编译到固件取决两点：mpconfigport.h和CMakeLists.txt </span></span><br><span class="line">MP_REGISTER_MODULE(MP_QSTR_my_lib, my_lib_module, MODULE_MY_LIB_ENABLED);</span><br></pre></td></tr></table></figure></li>
+<li><p>如上面代码的3.4，代码是写好了，要想把这个功能编译并加入固件，还需要编辑两个文件</p></li>
+</ol>
+<p>5.1 在<code>components/micropython/port/include/mpconfigport.h</code> 中添加</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MODULE_MY_LIB_ENABLED               (1)</span></span><br></pre></td></tr></table></figure>
+<p>5.2 在<code>components/micropython/CMakeLists.txt</code> 中添加</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">append_srcs_dir(MPY_PORT_SRCS <span class="string">&quot;port/src/my_lib&quot;</span>)</span><br></pre></td></tr></table></figure>
+<ol type="1">
+<li><p>编译、下载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> projects/maixpy_k210_minimum <span class="comment"># 选用的是最小版</span></span><br><span class="line">python project.py rebuild <span class="comment"># 编译</span></span><br><span class="line">kflash -b 1500000 -p /dev/cu.usbserial-14310 build/maixpy.bin <span class="comment"># 烧录</span></span><br></pre></td></tr></table></figure></li>
+<li><p>测试</p>
+<p>使用串口通信，MacOS上方法为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">screen /dev/cu.usbserial-14310 115200</span><br></pre></td></tr></table></figure>
+<p>接着出现如下现象：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">&gt;&gt;&gt; from my_lib import hello</span><br><span class="line">&gt;&gt;&gt; hello()</span><br><span class="line">hello world from my_lib</span><br></pre></td></tr></table></figure>
+<p>当运行<code>hello()</code> 出现<code>hello world from my_lib</code> 说明新加入一个模块成功了</p></li>
+</ol>
+<p>学习完上面的7步，你已经可以完整的写一个底层函数，编译并烧录固件到硬件上了。</p>
+<h2 id="加入自定的类">加入自定的类</h2>
+<p>假设需要在<code>my_lib</code>里实现类<code>A</code> ，并实现类方法<code>A.add</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> my_lib</span><br><span class="line"></span><br><span class="line">a = my_lib.A()</span><br><span class="line"><span class="built_in">print</span>(a.add(<span class="number">1</span>, <span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+<p>具体方法：只需要操作上面的3和4步即可</p>
+<p>第3步变为： 在<code>components/micropython/core/py/makeqstrdata.py</code> 中的<code>static_qstr_list</code> 中，加入<code>A</code> 和 <code>add</code> 两个名字：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">static_qstr_list = [</span><br><span class="line">		<span class="string">&quot;A&quot;</span>, <span class="comment"># Python底层函数名</span></span><br><span class="line">		<span class="string">&quot;add&quot;</span>, <span class="comment"># Python低层模块名</span></span><br><span class="line">    ...</span><br><span class="line">		]</span><br></pre></td></tr></table></figure>
+<p>第4步变为：类代码，我们就放在第二部分</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">//        II 模块内的类定义</span></span><br><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br><span class="line"><span class="comment">// 定义对象 A</span></span><br><span class="line"><span class="comment">// 使用方法</span></span><br><span class="line"><span class="comment">// &gt;&gt;from my_lib import A; A.add(1,2)</span></span><br><span class="line"><span class="comment">// 2.0 预定义</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">mp_obj_type_t</span> my_lib_A;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2.1 定义类方法</span></span><br><span class="line"><span class="function">STATIC <span class="keyword">mp_obj_t</span> <span class="title">my_lib_A_add</span><span class="params">(<span class="keyword">mp_obj_t</span> a, <span class="keyword">mp_obj_t</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> mp_obj_new_int(mp_obj_get_int(a)+mp_obj_get_int(b));</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 2.2 将函数转换为MaixPy对象</span></span><br><span class="line">MP_DEFINE_CONST_FUN_OBJ_2(my_lib_A_add_obj, my_lib_A_add);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2.3 C语言层面定义一个结构体的数组，将名字（key）和对象（value）关系起来</span></span><br><span class="line">STATIC <span class="keyword">const</span> <span class="keyword">mp_rom_map_elem_t</span> my_lib_A_locals_dict_table[] = &#123;</span><br><span class="line">    &#123;MP_ROM_QSTR(MP_QSTR_add), MP_ROM_PTR(&amp;my_lib_A_add_obj)&#125;,</span><br><span class="line">    &#123; <span class="literal">NULL</span>, <span class="literal">NULL</span> &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 2.4 C dict转MaixPy dict</span></span><br><span class="line"><span class="function">STATIC <span class="title">MP_DEFINE_CONST_DICT</span><span class="params">(my_lib_A_locals_dict, my_lib_A_locals_dict_table)</span></span>;</span><br><span class="line"><span class="comment">// 2.5 定义类</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">mp_obj_type_t</span> my_lib_A = &#123;</span><br><span class="line">    &#123;&amp;mp_type_type&#125;,</span><br><span class="line">    .name = MP_QSTR_A,</span><br><span class="line">    <span class="comment">// .print  = py_A_print,</span></span><br><span class="line">    .locals_dict = (<span class="keyword">mp_obj_t</span>) &amp;my_lib_A_locals_dict</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">///////////////////////////////////////////////////////////////////////</span></span><br></pre></td></tr></table></figure>
+<p>注意：</p>
+<ul>
+<li>类方法add的两个参数计算时需要使用<code>mp_obj_get_int</code> 将参数从Python对象转为C类型，如果不使用这个函数直接计算，抑或是参数转移，会导致错误结果</li>
+</ul>
+<h2 id="参考资料">参考资料</h2>
+<p>https://wiki.sipeed.com/soft/maixpy/zh/course/advance/add_c_module.html</p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://twitter.com/QiangZiBro">
+            <span class="icon">
+              <i class="fab fa-twitter"></i>
+            </span>
+
+            <span class="label">Twitter</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="https://www.zhihu.com/people/QiangZiBro">
+            <span class="icon">
+              <i class="fab fa-zhihu"></i>
+            </span>
+
+            <span class="label">Zhihu</span>
+          </a>
+        </div>
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/images/wechat.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/k210/" rel="tag"># k210</a>
+              <a href="/tags/Python%E5%BA%95%E5%B1%82/" rel="tag"># Python底层</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/10/dl-k210/" rel="prev" title="动手实践嵌入式AI第二弹！">
+      <i class="fa fa-chevron-left"></i> 动手实践嵌入式AI第二弹！
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E7%9B%AE%E6%A0%87"><span class="nav-number">2.</span> <span class="nav-text">学习目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E5%85%A5%E4%BD%A0%E8%87%AA%E5%B7%B1%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">加入你自己的函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E5%85%A5%E8%87%AA%E5%AE%9A%E7%9A%84%E7%B1%BB"><span class="nav-number">4.</span> <span class="nav-text">加入自定的类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="QiangZiBro"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">QiangZiBro</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/QiangZiBro" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;QiangZiBro" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.zhihu.com/people/QiangZiBro" title="ZhiHu → https:&#x2F;&#x2F;www.zhihu.com&#x2F;people&#x2F;QiangZiBro" rel="noopener" target="_blank"><i class="fab fa-zhihu fa-fw"></i>ZhiHu</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/30707967" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;30707967" rel="noopener" target="_blank"><i class="fas fa-globe-asia fa-fw"></i>Bilibili</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">QiangZiBro</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '8464dde13ead68fcda90',
+      clientSecret: 'bb13eeb4abcd38d333a83f12c2991ae22e3cd06a',
+      repo        : 'qiangzibro.github.io',
+      owner       : 'QiangZiBro',
+      admin       : ['QiangZiBro'],
+      id          : 'c0c873eda0d5a909ad14088d1d897c3b',
+        language: '',
+      distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
